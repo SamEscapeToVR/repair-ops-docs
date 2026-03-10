@@ -1,0 +1,717 @@
+---
+interface StatusInfo {
+  id: string;
+  label: string;
+  description: string;
+  transitions: string[];
+  roles: string[];
+  gate?: {
+    fields: string[];
+    description: string;
+  };
+  x: number;
+  y: number;
+}
+
+const statuses: StatusInfo[] = [
+  {
+    id: 'INTAKE',
+    label: 'Intake',
+    description: 'Ticket created, awaiting initial data collection.',
+    transitions: ['TRIAGE', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'FRONT_DESK'],
+    gate: {
+      fields: ['customer_id', 'device_identifier', 'issue_category', 'consent_signed', 'photos_min_2'],
+      description: 'Basic intake data must be collected before triage.',
+    },
+    x: 50,
+    y: 8,
+  },
+  {
+    id: 'TRIAGE',
+    label: 'Triage',
+    description: 'Manager reviews and assigns technician.',
+    transitions: ['DIAGNOSTICS', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER'],
+    x: 50,
+    y: 18,
+  },
+  {
+    id: 'DIAGNOSTICS',
+    label: 'Diagnostics',
+    description: 'Tech investigates the issue, runs tests, and documents findings.',
+    transitions: ['WAITING_APPROVAL', 'TRIAGE', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'TECH'],
+    gate: {
+      fields: ['diagnostic_checklist_complete', 'findings_summary', 'evidence_attachments_min_1'],
+      description: 'Diagnostic results must be documented with evidence.',
+    },
+    x: 50,
+    y: 28,
+  },
+  {
+    id: 'WAITING_APPROVAL',
+    label: 'Waiting Approval',
+    description: 'Quote sent to the customer, awaiting a decision.',
+    transitions: ['APPROVED', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'TECH'],
+    gate: {
+      fields: ['quote_total', 'line_items', 'approval_link_sent'],
+      description: 'A complete quote must be prepared and delivered before moving on.',
+    },
+    x: 50,
+    y: 38,
+  },
+  {
+    id: 'APPROVED',
+    label: 'Approved',
+    description: 'Customer approved the quote. Repair or part ordering can begin.',
+    transitions: ['WAITING_ON_PARTS', 'IN_REPAIR', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'FRONT_DESK'],
+    x: 50,
+    y: 48,
+  },
+  {
+    id: 'WAITING_ON_PARTS',
+    label: 'Waiting on Parts',
+    description: 'Repair is paused while required parts are ordered or delivered.',
+    transitions: ['IN_REPAIR', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'TECH'],
+    x: 24,
+    y: 58,
+  },
+  {
+    id: 'IN_REPAIR',
+    label: 'In Repair',
+    description: 'A technician is actively working on the device.',
+    transitions: ['QC_REVIEW', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'TECH'],
+    x: 50,
+    y: 62,
+  },
+  {
+    id: 'QC_REVIEW',
+    label: 'QC Review',
+    description: 'Quality control verifies the work before release.',
+    transitions: ['READY_FOR_PICKUP', 'QC_FAILED', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'TECH', 'QC'],
+    gate: {
+      fields: ['qc_checklist_complete', 'verification_evidence_min_1', 'qc_outcome'],
+      description: 'QC must be completed with evidence and an outcome before release.',
+    },
+    x: 50,
+    y: 74,
+  },
+  {
+    id: 'QC_FAILED',
+    label: 'QC Failed',
+    description: 'QC found issues and returned the work for rework.',
+    transitions: ['IN_REPAIR', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'QC'],
+    x: 24,
+    y: 74,
+  },
+  {
+    id: 'READY_FOR_PICKUP',
+    label: 'Ready for Pickup',
+    description: 'Repair is complete and the customer can collect the device.',
+    transitions: ['PICKED_UP', 'VOIDED'],
+    roles: ['OWNER', 'MANAGER', 'FRONT_DESK'],
+    x: 50,
+    y: 86,
+  },
+  {
+    id: 'PICKED_UP',
+    label: 'Picked Up',
+    description: 'Customer collected the device. Payment and invoicing complete here.',
+    transitions: ['CLOSED'],
+    roles: ['OWNER', 'MANAGER', 'FRONT_DESK'],
+    x: 50,
+    y: 96,
+  },
+  {
+    id: 'CLOSED',
+    label: 'Closed',
+    description: 'Terminal state for completed work.',
+    transitions: [],
+    roles: ['OWNER', 'MANAGER', 'FRONT_DESK'],
+    x: 33,
+    y: 106,
+  },
+  {
+    id: 'VOIDED',
+    label: 'Voided',
+    description: 'Terminal state for cancelled work. Gates are bypassed when voiding.',
+    transitions: [],
+    roles: ['OWNER', 'MANAGER'],
+    x: 67,
+    y: 106,
+  },
+];
+
+const statusMap = Object.fromEntries(statuses.map((status) => [status.id, status]));
+
+type ArrowInfo = {
+  key: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  isBackstep: boolean;
+};
+
+function createArrow(from: StatusInfo, to: StatusInfo): ArrowInfo {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const startOffset = 4.3;
+  const endOffset = 4.8;
+
+  return {
+    key: `${from.id}-${to.id}`,
+    x1: Number((from.x + (dx / distance) * startOffset).toFixed(2)),
+    y1: Number((from.y + (dy / distance) * startOffset).toFixed(2)),
+    x2: Number((to.x - (dx / distance) * endOffset).toFixed(2)),
+    y2: Number((to.y - (dy / distance) * endOffset).toFixed(2)),
+    isBackstep: to.y < from.y || from.id === 'QC_FAILED',
+  };
+}
+
+const arrows = statuses.flatMap((status) =>
+  status.transitions.map((targetId) => createArrow(status, statusMap[targetId]))
+);
+
+const initialStatus = statuses[0];
+const statusDataJson = JSON.stringify(statuses);
+---
+
+<div class="ism-container" data-statuses={statusDataJson}>
+  <div class="ism-stage">
+    <div class="ism-legend">
+      <span><span class="ism-legend__chip"></span> Standard status</span>
+      <span><span class="ism-legend__chip ism-legend__chip--gated"></span> Exit gate</span>
+      <span><span class="ism-legend__chip ism-legend__chip--terminal"></span> Terminal</span>
+      <span><span class="ism-legend__line"></span> Forward transition</span>
+      <span><span class="ism-legend__line ism-legend__line--dashed"></span> Retry / backstep</span>
+    </div>
+    <div class="ism-diagram">
+      <svg class="ism-arrows" viewBox="0 0 100 112" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <marker id="ism-arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="var(--sl-color-gray-3)" />
+          </marker>
+        </defs>
+        {arrows.map((arrow) => (
+          <line
+            x1={arrow.x1}
+            y1={arrow.y1}
+            x2={arrow.x2}
+            y2={arrow.y2}
+            class:list={['ism-arrow', arrow.isBackstep && 'ism-arrow--backstep']}
+            marker-end="url(#ism-arrowhead)"
+          />
+        ))}
+      </svg>
+      {statuses.map((status, index) => (
+        <button
+          type="button"
+          class:list={[
+            'ism-node',
+            status.gate && 'ism-node--gated',
+            status.transitions.length === 0 && 'ism-node--terminal',
+            index === 0 && 'ism-node--active',
+          ]}
+          data-status={status.id}
+          style={`left:${status.x}%; top:${status.y / 1.12}%;`}
+          aria-pressed={index === 0 ? 'true' : 'false'}
+        >
+          <span class="ism-node__label">{status.label}</span>
+          {status.gate && <span class="ism-node__gate-dot" aria-hidden="true"></span>}
+        </button>
+      ))}
+      <div class="ism-tooltip" hidden></div>
+    </div>
+  </div>
+
+  <aside class="ism-detail" data-ism-detail>
+    <h4 class="ism-detail__title">{initialStatus.label}</h4>
+    <p class="ism-detail__desc">{initialStatus.description}</p>
+
+    {initialStatus.transitions.length === 0 ? (
+      <p class="ism-detail__terminal">Terminal state. No outgoing transitions.</p>
+    ) : (
+      <div class="ism-detail__section">
+        <h5>Transitions to</h5>
+        <div class="ism-detail__tags">
+          {initialStatus.transitions.map((target) => (
+            <span class="ism-tag ism-tag--transition">{statusMap[target]?.label ?? target}</span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div class="ism-detail__section">
+      <h5>Permitted roles</h5>
+      <div class="ism-detail__tags">
+        {initialStatus.roles.map((role) => (
+          <span class="ism-tag ism-tag--role">{role}</span>
+        ))}
+      </div>
+    </div>
+
+    {initialStatus.gate && (
+      <div class="ism-detail__section ism-detail__gate">
+        <h5>Exit gate</h5>
+        <p>{initialStatus.gate.description}</p>
+        <ul>
+          {initialStatus.gate.fields.map((field) => (
+            <li>
+              <code>{field}</code>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </aside>
+</div>
+
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const container = currentScript?.previousElementSibling;
+
+    if (!(container instanceof HTMLElement)) return;
+
+    const rawStatuses = container.dataset.statuses;
+    if (!rawStatuses) return;
+
+    const statuses = JSON.parse(rawStatuses);
+    const statusMap = Object.fromEntries(statuses.map((status) => [status.id, status]));
+    const diagram = container.querySelector('.ism-diagram');
+    const detailPanel = container.querySelector('[data-ism-detail]');
+    const tooltip = diagram?.querySelector('.ism-tooltip');
+    const nodes = Array.from(diagram?.querySelectorAll('.ism-node') ?? []);
+
+    if (!(diagram instanceof HTMLElement)) return;
+    if (!(detailPanel instanceof HTMLElement)) return;
+    if (!(tooltip instanceof HTMLElement)) return;
+
+    const createTag = (text, className) => {
+      const tag = document.createElement('span');
+      tag.className = className;
+      tag.textContent = text;
+      return tag;
+    };
+
+    const createSection = (title) => {
+      const section = document.createElement('div');
+      section.className = 'ism-detail__section';
+
+      const heading = document.createElement('h5');
+      heading.textContent = title;
+      section.append(heading);
+
+      return section;
+    };
+
+    const renderDetail = (status) => {
+      detailPanel.replaceChildren();
+
+      const title = document.createElement('h4');
+      title.className = 'ism-detail__title';
+      title.textContent = status.label;
+
+      const description = document.createElement('p');
+      description.className = 'ism-detail__desc';
+      description.textContent = status.description;
+
+      detailPanel.append(title, description);
+
+      if (status.transitions.length === 0) {
+        const terminal = document.createElement('p');
+        terminal.className = 'ism-detail__terminal';
+        terminal.textContent = 'Terminal state. No outgoing transitions.';
+        detailPanel.append(terminal);
+      } else {
+        const transitionSection = createSection('Transitions to');
+        const transitionTags = document.createElement('div');
+        transitionTags.className = 'ism-detail__tags';
+
+        status.transitions.forEach((target) => {
+          transitionTags.append(createTag(statusMap[target]?.label ?? target, 'ism-tag ism-tag--transition'));
+        });
+
+        transitionSection.append(transitionTags);
+        detailPanel.append(transitionSection);
+      }
+
+      const rolesSection = createSection('Permitted roles');
+      const roleTags = document.createElement('div');
+      roleTags.className = 'ism-detail__tags';
+
+      status.roles.forEach((role) => {
+        roleTags.append(createTag(role, 'ism-tag ism-tag--role'));
+      });
+
+      rolesSection.append(roleTags);
+      detailPanel.append(rolesSection);
+
+      if (!status.gate) return;
+
+      const gateSection = createSection('Exit gate');
+      gateSection.classList.add('ism-detail__gate');
+
+      const gateDescription = document.createElement('p');
+      gateDescription.textContent = status.gate.description;
+      gateSection.append(gateDescription);
+
+      const gateList = document.createElement('ul');
+      status.gate.fields.forEach((field) => {
+        const item = document.createElement('li');
+        const code = document.createElement('code');
+        code.textContent = field;
+        item.append(code);
+        gateList.append(item);
+      });
+
+      gateSection.append(gateList);
+      detailPanel.append(gateSection);
+    };
+
+    const setActiveStatus = (statusId) => {
+      const selected = statusMap[statusId];
+      if (!selected) return;
+
+      nodes.forEach((node) => {
+        const nodeStatus = node.dataset.status;
+        const isActive = nodeStatus === statusId;
+        const isTarget = nodeStatus ? selected.transitions.includes(nodeStatus) : false;
+        node.classList.toggle('ism-node--active', isActive);
+        node.classList.toggle('ism-node--target', !isActive && isTarget);
+        node.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+
+      renderDetail(selected);
+    };
+
+    const showTooltip = (node) => {
+      const statusId = node.dataset.status;
+      if (!statusId) return;
+
+      const status = statusMap[statusId];
+      if (!status) return;
+
+      tooltip.replaceChildren();
+
+      const title = document.createElement('strong');
+      title.textContent = status.label;
+
+      const description = document.createElement('span');
+      description.textContent = status.description;
+
+      const next = document.createElement('span');
+      const nextLabels = status.transitions.length
+        ? status.transitions.map((target) => statusMap[target]?.label ?? target).join(', ')
+        : 'Terminal';
+      next.textContent = `Next: ${nextLabels}`;
+
+      tooltip.append(title, description, next);
+
+      const diagramRect = diagram.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      const left = nodeRect.left - diagramRect.left + nodeRect.width / 2;
+      const top = nodeRect.top - diagramRect.top - 14;
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      tooltip.hidden = false;
+    };
+
+    const hideTooltip = () => {
+      tooltip.hidden = true;
+    };
+
+    nodes.forEach((node) => {
+      node.addEventListener('mouseenter', () => showTooltip(node));
+      node.addEventListener('focus', () => showTooltip(node));
+      node.addEventListener('mouseleave', hideTooltip);
+      node.addEventListener('blur', hideTooltip);
+      node.addEventListener('click', () => {
+        const statusId = node.dataset.status;
+        if (!statusId) return;
+        setActiveStatus(statusId);
+        showTooltip(node);
+      });
+    });
+
+    const initialStatusId = nodes[0]?.dataset.status;
+    if (initialStatusId) {
+      setActiveStatus(initialStatusId);
+    }
+  })();
+</script>
+
+<style>
+  .ism-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .ism-stage {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .ism-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .ism-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .ism-legend__chip {
+    width: 0.95rem;
+    height: 0.95rem;
+    border: 2px solid var(--sl-color-gray-4);
+    border-radius: 0.35rem;
+    background: var(--sl-color-bg);
+  }
+
+  .ism-legend__chip--gated {
+    border-style: dashed;
+  }
+
+  .ism-legend__chip--terminal {
+    border-radius: 999px;
+  }
+
+  .ism-legend__line {
+    width: 1.5rem;
+    height: 0;
+    border-top: 2px solid var(--sl-color-gray-3);
+  }
+
+  .ism-legend__line--dashed {
+    border-top-style: dashed;
+  }
+
+  .ism-diagram {
+    position: relative;
+    min-height: 44rem;
+    overflow: hidden;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 1rem;
+    background:
+      radial-gradient(circle at top, color-mix(in srgb, var(--sl-color-accent) 12%, transparent), transparent 45%),
+      var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+  }
+
+  .ism-node-layer {
+    display: contents;
+  }
+
+  .ism-arrows {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .ism-arrow {
+    stroke: color-mix(in srgb, var(--sl-color-gray-3) 75%, transparent);
+    stroke-width: 1.2;
+  }
+
+  .ism-arrow--backstep {
+    stroke-dasharray: 2.6 2;
+  }
+
+  .ism-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 2px solid var(--sl-color-gray-4);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--sl-color-black) 92%, transparent);
+    color: var(--sl-color-white);
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-shadow: var(--sl-shadow-sm);
+    cursor: pointer;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .ism-node:hover,
+  .ism-node:focus-visible {
+    border-color: var(--sl-color-accent);
+    transform: translate(-50%, -50%) scale(1.03);
+    outline: none;
+  }
+
+  .ism-node--active {
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--sl-color-accent) 22%, transparent);
+  }
+
+  .ism-node--target {
+    border-color: var(--ro-success);
+  }
+
+  .ism-node--gated {
+    border-style: dashed;
+  }
+
+  .ism-node--terminal {
+    border-radius: 999px;
+    padding-inline: 1rem;
+  }
+
+  .ism-node__gate-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: var(--ro-warning);
+  }
+
+  .ism-tooltip {
+    position: absolute;
+    z-index: 4;
+    max-width: 16rem;
+    transform: translate(-50%, -100%);
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--sl-color-black) 96%, transparent);
+    box-shadow: var(--sl-shadow-md);
+    font-size: 0.76rem;
+    color: var(--sl-color-text);
+    pointer-events: none;
+  }
+
+  .ism-tooltip strong {
+    color: var(--sl-color-white);
+    font-size: 0.8rem;
+  }
+
+  .ism-detail {
+    padding: 1rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--sl-color-accent) 6%, transparent), transparent 22%),
+      var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+  }
+
+  .ism-detail__title {
+    margin: 0 0 0.45rem;
+    font-size: 1.1rem;
+  }
+
+  .ism-detail__desc {
+    margin: 0 0 1rem;
+    color: var(--sl-color-text);
+  }
+
+  .ism-detail__section {
+    margin-bottom: 1rem;
+  }
+
+  .ism-detail__section h5 {
+    margin: 0 0 0.4rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .ism-detail__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .ism-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .ism-tag--transition {
+    background: color-mix(in srgb, var(--ro-success) 16%, transparent);
+    color: var(--ro-success);
+  }
+
+  .ism-tag--role {
+    background: color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
+    color: var(--sl-color-text-accent);
+  }
+
+  .ism-detail__gate {
+    padding: 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--ro-warning) 35%, transparent);
+    border-radius: 0.9rem;
+    background: color-mix(in srgb, var(--ro-warning) 10%, transparent);
+  }
+
+  .ism-detail__gate h5 {
+    color: var(--ro-warning);
+  }
+
+  .ism-detail__gate p,
+  .ism-detail__gate ul {
+    margin: 0;
+  }
+
+  .ism-detail__gate ul {
+    padding-left: 1.1rem;
+    margin-top: 0.55rem;
+  }
+
+  .ism-detail__terminal {
+    margin: 0;
+    color: var(--sl-color-gray-3);
+    font-style: italic;
+  }
+
+  @media (max-width: 960px) {
+    .ism-container {
+      grid-template-columns: 1fr;
+    }
+
+    .ism-detail {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .ism-diagram {
+      min-height: 40rem;
+    }
+
+    .ism-node {
+      font-size: 0.74rem;
+      padding: 0.4rem 0.65rem;
+    }
+  }
+</style>

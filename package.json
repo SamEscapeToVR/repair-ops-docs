@@ -1,0 +1,19 @@
+{
+  "name": "docs-repairops-app",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RepairOps documentation site built with Astro and Starlight",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.34.0",
+    "@astrojs/vercel": "^8.1.4",
+    "astro": "^5.7.10",
+    "sharp": "^0.33.5"
+  }
+}

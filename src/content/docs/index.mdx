@@ -1,0 +1,77 @@
+---
+title: RepairOps Documentation
+description: The all-in-one repair shop management platform. Guides, API reference, and everything you need to get started.
+template: splash
+hero:
+  tagline: The all-in-one repair shop management platform. Whether you're running a solo shop or managing multiple locations, this documentation will help you get the most out of RepairOps.
+  actions:
+    - text: Quick Start Guide
+      link: /getting-started/quick-start/
+      icon: right-arrow
+      variant: primary
+    - text: View Features
+      link: /features/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Getting Started
+
+<CardGrid>
+  <Card title="Quick Start" icon="rocket">
+    Set up your account and onboard your shop in **15 minutes**. Create your org, invite your team, and start processing repairs.
+  </Card>
+  <Card title="Your First Ticket" icon="document">
+    Walk through the **complete repair workflow** from intake to pickup — see every status transition in action.
+  </Card>
+  <Card title="Team Setup" icon="group">
+    **Invite staff**, assign roles (Owner, Manager, Tech, Front Desk, QC), and configure permissions.
+  </Card>
+  <Card title="Plans & Billing" icon="star">
+    Compare **Starter, Pro, and Enterprise** tiers. Manage AI credits and add-ons.
+  </Card>
+</CardGrid>
+
+## User Guides by Role
+
+<CardGrid>
+  <LinkCard title="Front Desk" description="Customer intake, quotes, payments, pickup, and communication." href="/user-guide/front-desk/" />
+  <LinkCard title="Technician" description="Diagnostics, repair logging, parts tracking, and time management." href="/user-guide/technician/" />
+  <LinkCard title="Manager" description="Triage, dispatch, QC oversight, staff management, and KPIs." href="/user-guide/manager/" />
+  <LinkCard title="Customer Portal" description="Track repairs, approve quotes, and make payments online." href="/user-guide/customer-portal/" />
+</CardGrid>
+
+## Features
+
+<CardGrid>
+  <LinkCard title="Knowledge Base + AI Chat" description="Searchable repair articles and AI-powered assistant with RAG." href="/features/knowledge-base/" />
+  <LinkCard title="System Builder" description="Build custom PC configurations with 31K+ components and compatibility checks." href="/features/system-builder/" />
+  <LinkCard title="AI Gateway" description="Flexible AI providers — BYOK or managed credits for diagnostics, voice-to-text, and more." href="/features/ai-gateway/" />
+  <LinkCard title="POS Terminal" description="Accept payments, issue receipts, and manage cash drawers." href="/features/pos-terminal/" />
+  <LinkCard title="Analytics & KPIs" description="Track turnaround time, revenue, and technician productivity." href="/features/analytics/" />
+  <LinkCard title="Plugins & Marketplace" description="Extend RepairOps with free and premium plugins." href="/features/plugins/" />
+</CardGrid>
+
+## Admin & Developer
+
+<CardGrid>
+  <LinkCard title="Admin Guide" description="Billing, SSO, branding, backups, and security settings." href="/admin/" />
+  <LinkCard title="REST API Reference" description="Full endpoint docs, authentication, and examples." href="/developer/api-reference/" />
+  <LinkCard title="Plugin SDK" description="Build custom plugins for the RepairOps marketplace." href="/developer/plugin-sdk/" />
+  <LinkCard title="Self-Hosted Deployment" description="Docker Compose stack for private cloud." href="/developer/self-hosted/" />
+</CardGrid>
+
+## Quick Reference
+
+<CardGrid>
+  <LinkCard title="Ticket State Machine" description="All 13 statuses, transitions, permissions, and gate requirements." href="/reference/state-machine/" />
+  <LinkCard title="Feature Matrix" description="Starter vs Pro vs Enterprise — full comparison." href="/reference/feature-matrix/" />
+  <LinkCard title="Role Permissions" description="What each role can do across the platform." href="/reference/permissions/" />
+  <LinkCard title="Keyboard Shortcuts" description="Speed up your workflow." href="/reference/shortcuts/" />
+  <LinkCard title="Glossary" description="Common terms and abbreviations." href="/reference/glossary/" />
+</CardGrid>
+
+---
+
+**Need help?** Email [support@repairops.app](mailto:support@repairops.app) or visit [community.repairops.app](https://community.repairops.app).

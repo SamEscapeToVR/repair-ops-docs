@@ -1,0 +1,272 @@
+---
+interface Props {
+  endpoint: string;
+  method?: string;
+  curl: string;
+  javascript: string;
+  python: string;
+  response?: string;
+}
+
+const { endpoint, method = 'GET', curl, javascript, python, response } = Astro.props;
+
+const id = `api-${endpoint.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+const tabs = [
+  { key: 'curl', label: 'cURL', language: 'bash', content: curl },
+  { key: 'js', label: 'JavaScript', language: 'javascript', content: javascript },
+  { key: 'python', label: 'Python', language: 'python', content: python },
+];
+---
+
+<div class="api-playground" data-api-playground={id}>
+  <div class="api-playground__header">
+    <span class={`api-playground__method api-playground__method--${method.toLowerCase()}`}>
+      {method}
+    </span>
+    <code class="api-playground__endpoint">{endpoint}</code>
+  </div>
+
+  <div class="api-playground__tabs" role="tablist" aria-label={`Examples for ${endpoint}`}>
+    {tabs.map((tab, index) => (
+      <button
+        id={`${id}-tab-${tab.key}`}
+        class={`api-playground__tab ${index === 0 ? 'api-playground__tab--active' : ''}`}
+        type="button"
+        role="tab"
+        aria-selected={index === 0 ? 'true' : 'false'}
+        aria-controls={`${id}-panel-${tab.key}`}
+        tabindex={index === 0 ? 0 : -1}
+        data-tab={tab.key}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+
+  {tabs.map((tab, index) => (
+    <section
+      id={`${id}-panel-${tab.key}`}
+      class={`api-playground__panel ${index === 0 ? 'api-playground__panel--active' : ''}`}
+      role="tabpanel"
+      aria-labelledby={`${id}-tab-${tab.key}`}
+      hidden={index === 0 ? undefined : true}
+      data-panel={tab.key}
+    >
+      <div class="api-playground__panel-bar">
+        <span>{tab.label} example</span>
+        <button class="api-playground__copy" type="button" data-copy={tab.key}>
+          Copy
+        </button>
+      </div>
+      <pre><code class={`language-${tab.language}`} data-source={tab.key}>{tab.content}</code></pre>
+    </section>
+  ))}
+
+  {response && (
+    <section class="api-playground__response">
+      <div class="api-playground__panel-bar">
+        <span>Example response</span>
+        <button class="api-playground__copy" type="button" data-copy="response">
+          Copy
+        </button>
+      </div>
+      <pre><code class="language-json" data-source="response">{response}</code></pre>
+    </section>
+  )}
+
+  <p class="api-playground__status" aria-live="polite"></p>
+</div>
+
+<script>
+  document.querySelectorAll('[data-api-playground]').forEach((playground) => {
+    const tabs = Array.from(playground.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(playground.querySelectorAll('[data-panel]'));
+    const status = playground.querySelector('.api-playground__status');
+
+    const setActiveTab = (targetKey) => {
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.tab === targetKey;
+        tab.classList.toggle('api-playground__tab--active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      panels.forEach((panel) => {
+        const isActive = panel.dataset.panel === targetKey;
+        panel.classList.toggle('api-playground__panel--active', isActive);
+        panel.toggleAttribute('hidden', !isActive);
+      });
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        setActiveTab(tab.dataset.tab);
+      });
+
+      tab.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        const direction = event.key === 'ArrowRight' ? 1 : -1;
+        const nextIndex = (index + direction + tabs.length) % tabs.length;
+        const nextTab = tabs[nextIndex];
+        setActiveTab(nextTab.dataset.tab);
+        nextTab.focus();
+      });
+    });
+
+    playground.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const sourceKey = button.dataset.copy;
+        const source = playground.querySelector(`[data-source="${sourceKey}"]`);
+        if (!source) return;
+
+        try {
+          await navigator.clipboard.writeText(source.textContent ?? '');
+          if (status) status.textContent = `${button.textContent} complete`;
+          button.textContent = 'Copied';
+          window.setTimeout(() => {
+            button.textContent = 'Copy';
+            if (status) status.textContent = '';
+          }, 1200);
+        } catch {
+          if (status) status.textContent = 'Copy failed';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .api-playground {
+    margin: 1.5rem 0;
+    overflow: hidden;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--sl-color-accent) 5%, transparent), transparent 30%),
+      var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+  }
+
+  .api-playground__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+
+  .api-playground__method {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .api-playground__method--get {
+    background: color-mix(in srgb, #10b981 22%, transparent);
+    color: #34d399;
+  }
+
+  .api-playground__method--post {
+    background: color-mix(in srgb, #2563eb 22%, transparent);
+    color: #93c5fd;
+  }
+
+  .api-playground__method--put,
+  .api-playground__method--patch {
+    background: color-mix(in srgb, #f59e0b 22%, transparent);
+    color: #fbbf24;
+  }
+
+  .api-playground__method--delete {
+    background: color-mix(in srgb, #ef4444 22%, transparent);
+    color: #fca5a5;
+  }
+
+  .api-playground__endpoint {
+    font-size: 0.9rem;
+    color: var(--sl-color-text);
+  }
+
+  .api-playground__tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem 0.5rem 0;
+  }
+
+  .api-playground__tab {
+    border: 0;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: transparent;
+    color: var(--sl-color-gray-3);
+    padding: 0.625rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .api-playground__tab--active {
+    background: var(--sl-color-black);
+    color: var(--sl-color-white);
+  }
+
+  .api-playground__panel,
+  .api-playground__response {
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+
+  .api-playground__panel-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.65rem 1rem;
+    background: color-mix(in srgb, var(--sl-color-black) 30%, transparent);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sl-color-gray-3);
+  }
+
+  .api-playground__copy {
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--sl-color-text);
+    padding: 0.25rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .api-playground__copy:hover {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-text-accent);
+  }
+
+  .api-playground pre {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .api-playground__status {
+    min-height: 1.25rem;
+    margin: 0;
+    padding: 0 1rem 0.85rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 640px) {
+    .api-playground__panel-bar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,255 @@
+---
+title: "POS Terminal"
+description: "Accept payments, issue receipts, manage cash drawers"
+sidebar:
+  order: 5
+---
+
+import TierBadge from '../../../components/TierBadge.astro';
+
+The POS Terminal enables your shop to process non-repair sales directly in RepairOps. Sell parts, accessories, labor, and services without tying sales to repair tickets. Manage cash drawers, reconcile daily transactions, and integrate with your accounting.
+
+**Available on:** <TierBadge tier="pro" /> and <TierBadge tier="enterprise" /> tiers only.
+
+## Creating a Sale
+
+### Starting a New Sale
+
+1. Navigate to **POS** → **New Sale**
+2. Optionally select or create a customer (or sell anonymously)
+3. Select **Sale Type**: Parts, Accessories, Service, Labor, or Other
+4. Begin adding items
+
+The sale appears as a transaction in **POS** → **Transactions**, separate from repair tickets.
+
+### Adding Line Items
+
+For each line item:
+
+1. Click **Add Item**
+2. Search for an item:
+   - **From Inventory** — Select a pre-configured inventory item (parts, accessories)
+   - **Add Custom** — Enter a description and price (one-time items like labor)
+3. Enter **Quantity**
+4. Confirm **Unit Price** (auto-filled for inventory items)
+5. Optional: Add **Discount** (percentage or fixed amount)
+6. Click **Add to Sale**
+
+### Inventory Items
+
+Items in your inventory appear with:
+- Item name and SKU
+- Current stock level
+- Unit price (cost + markup)
+- Available discounts (bulk discounts, promotions)
+
+Stock is deducted automatically when you finalize the sale.
+
+### Custom Items
+
+For one-off charges:
+- Labor: "1 hour technician labor" @ $85
+- Rush fee: "Rush diagnostic fee" @ $50
+- Consumables: "Thermal paste syringe" @ $12
+
+No inventory tracking for custom items.
+
+## Payments
+
+RepairOps POS supports multiple payment methods:
+
+### Cash
+
+1. Click **Add Payment**
+2. Select **Cash**
+3. Enter amount received
+4. RepairOps calculates change
+
+For larger shops, cash drawer management is integrated (see below).
+
+### Card (Credit/Debit)
+
+1. Click **Add Payment**
+2. Select **Card**
+3. Choose card processor:
+   - Stripe (if configured)
+   - Square (if configured)
+   - Manual entry (swipe, tap, or manually enter details)
+4. Process payment through provider
+
+### Check
+
+1. Click **Add Payment**
+2. Select **Check**
+3. Enter check number and amount
+4. Note: Check is recorded but considered pending until deposited
+
+### Account Credit / Store Credit
+
+For customers with existing account credit:
+1. Click **Add Payment**
+2. Select **Account Credit**
+3. Remaining balance updates automatically
+
+### Gift Card
+
+1. Click **Add Payment**
+2. Select **Gift Card**
+3. Scan or enter gift card number
+4. Remaining balance updates
+
+## Cash Drawer Management
+
+For shops with physical cash drawers:
+
+### Opening a Drawer
+
+1. Navigate to **POS** → **Drawer Management**
+2. Click **Open Drawer**
+3. Enter your **name** and **opening amount** (e.g., $100)
+4. Confirm opening
+
+The drawer is now active. All cash sales are associated with your drawer session.
+
+### Drawer Transactions
+
+Throughout the day, RepairOps tracks:
+- **Cash sales** — Automatically added
+- **Refunds** — Deducted from drawer
+- **Manual adjustments** — Mark-down or mark-up (e.g., adding tips, correcting errors)
+- **Deposits** — Money taken out and deposited
+
+### Closing a Drawer
+
+At the end of your shift:
+
+1. Click **Close Drawer** in Drawer Management
+2. Enter your **closing count** (actual cash in drawer)
+3. RepairOps calculates expected total
+4. Confirm discrepancy if actual differs from expected
+5. Click **Finalize**
+
+**Discrepancy handling:**
+- Small differences (< $5) — Logged as noted, drawer closes
+- Large discrepancies (≥ $5) — Flagged for manager review before closing
+
+### Daily Reconciliation
+
+After all drawers are closed for the day:
+
+1. Navigate to **POS** → **Daily Report**
+2. View:
+   - Total sales by type (cash, card, check, credit)
+   - Total by item category
+   - Refunds and adjustments
+   - Expected vs. actual cash
+   - Drawer discrepancies
+3. Download report as PDF or CSV
+4. Send to accountant or archive
+
+## Session Management
+
+### Active Sessions
+
+Track multiple POS sessions simultaneously:
+- 3 concurrent drawers (typical small shop)
+- One POS iPad + one cash register + one counter
+
+Each session is independent; transactions don't interfere.
+
+### Session History
+
+View all past sessions:
+1. **POS** → **Sessions**
+2. Filter by date, drawer operator, or drawer location
+3. Click to view session details:
+   - All transactions
+   - Opening/closing balances
+   - Discrepancies
+   - Items sold
+
+## Reporting
+
+### Sales Reports
+
+**Daily Report:**
+- Date, shift, drawer operator
+- Transactions by type
+- Totals (cash, card, check)
+- Refunds
+- Discrepancies
+
+**Category Report:**
+- Sales by item category (parts, labor, services)
+- Quantity and revenue
+- Top-selling items
+
+**Inventory Report:**
+- Stock levels after sales
+- Items below threshold
+- Reorder recommendations
+
+### Financial Reports
+
+**Daily Deposit Report:**
+- Expected deposit (all card payments + checks)
+- Reconcile against bank deposits
+- Flag undeposited payments
+
+**Refund Report:**
+- Refunds by date and reason
+- Customer disputes
+- Patterns (e.g., frequent returns of specific items)
+
+### Export & Integration
+
+Export reports in multiple formats:
+- **PDF** — For printing and archiving
+- **CSV** — For import to accounting software (QuickBooks, Xero, etc.)
+- **JSON** — For custom integrations
+
+## Multiple Locations
+
+If your organization spans multiple shops:
+
+1. Switch shops from the top navigation
+2. POS drawer and transactions are shop-scoped
+3. Reports can aggregate across shops (manager view)
+4. Inventory levels are per-shop
+
+## Tier Availability
+
+| Feature | <TierBadge tier="pro" /> | <TierBadge tier="enterprise" /> |
+|---------|:---:|:----------:|
+| Create sales | ✓ | ✓ |
+| Inventory items | ✓ | ✓ |
+| Custom items | ✓ | ✓ |
+| Cash payments | ✓ | ✓ |
+| Card processing | ✓ | ✓ |
+| Check payments | ✓ | ✓ |
+| Account/Gift card | ✓ | ✓ |
+| Cash drawer management | ✓ | ✓ |
+| Multi-drawer sessions | ✓ | ✓ |
+| Daily reconciliation | ✓ | ✓ |
+| Sales reports | ✓ | ✓ |
+| Financial reports | ✓ | ✓ |
+| Export (PDF/CSV/JSON) | ✓ | ✓ |
+| Multi-shop aggregation | — | ✓ |
+
+## Best Practices
+
+**Reconcile daily** — Don't let discrepancies pile up. Address them immediately while drawers are fresh.
+
+**Use consistent descriptions** — Create standard inventory items for common sales. This improves reporting accuracy.
+
+**Train staff on procedures** — Every employee who touches POS should know how to open/close drawers, process refunds, and handle discrepancies.
+
+**Monitor trends** — Review weekly reports for patterns. What items sell most? When do discrepancies happen?
+
+**Keep receipts** — Customers appreciate printed receipts for POS purchases.
+
+## Related Features
+
+- **[Analytics](/features/analytics/)** — Includes POS revenue in KPI dashboards
+- **[Inventory Management](/features/system-builder/)** — Integrated inventory for POS items
+- **[Accounting Integration](/admin/billing/)** — Export to accounting software

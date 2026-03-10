@@ -1,0 +1,75 @@
+---
+interface Props {
+  shortcuts: Array<{ keys: string; action: string }>;
+}
+
+const { shortcuts } = Astro.props;
+
+function renderKeys(keys: string): string {
+  return keys
+    .split('+')
+    .map((k) => k.trim())
+    .map((k) => `<kbd>${k}</kbd>`)
+    .join(' + ');
+}
+---
+
+<table class="shortcut-table">
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {shortcuts.map((s) => (
+      <tr>
+        <td><Fragment set:html={renderKeys(s.keys)} /></td>
+        <td>{s.action}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .shortcut-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1rem 0 1.5rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 1rem;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--sl-color-accent) 5%, transparent), transparent 25%),
+      var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-sm);
+    font-size: 0.9rem;
+  }
+
+  .shortcut-table th {
+    text-align: left;
+    padding: 0.8rem 0.9rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-white);
+    font-weight: 700;
+    background: color-mix(in srgb, var(--sl-color-black) 18%, transparent);
+  }
+
+  .shortcut-table td {
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+
+  .shortcut-table td:first-child {
+    white-space: nowrap;
+  }
+
+  .shortcut-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .shortcut-table tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--sl-color-black) 12%, transparent);
+  }
+</style>

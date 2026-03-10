@@ -1,0 +1,221 @@
+---
+title: "AI Gateway"
+description: "Flexible AI provider support with BYOK or managed credits"
+sidebar:
+  order: 4
+---
+
+import TierBadge from '../../../components/TierBadge.astro';
+
+The AI Gateway brings AI into RepairOps without locking your shop into a single model provider or billing strategy. Use it for intake parsing, note cleanup, KB search, diagnostics assistance, QC support, voice transcription, and manager reporting.
+
+Starter organizations can enable selected AI-powered workflows with an AI add-on. <TierBadge tier="pro" /> unlocks the full AI Gateway control plane and advanced task coverage. <TierBadge tier="enterprise" /> adds self-hosted providers, fallback chains, and audit exports.
+
+## Supported Providers
+
+RepairOps supports multiple providers so you can optimize for cost, speed, or compliance.
+
+### Cloud Providers
+
+| Provider | Best For | Notes |
+|----------|----------|-------|
+| **OpenAI** | General-purpose chat and strong structured output | Popular default for broad usage |
+| **Anthropic** | Reasoning-heavy tasks and long-context prompting | Strong for explanations and summaries |
+| **Google** | Multimodal workflows and cost control | Good fit for mixed text + image tasks |
+| **Groq** | Low-latency responses | Useful for speed-sensitive actions |
+| **Mistral** | EU-friendly deployments and price-sensitive traffic | Good alternative routing option |
+
+### Self-Hosted <TierBadge tier="enterprise" />
+
+| Provider | Best For | Notes |
+|----------|----------|-------|
+| **Ollama** | On-prem or private-cloud inference | Enterprise-only, used for self-hosted models and private data flows |
+
+## AI Add-On Matrix
+
+AI is sold separately from the base Starter / Pro / Enterprise subscription.
+
+| Add-On | Price | Mode | Managed Credits / Month | Best For |
+|--------|-------|------|-------------------------|----------|
+| **Disabled** | $0 | Off | 0 | No AI usage |
+| **AI Ready** | $79 | BYOK | 0 | Teams using their own provider keys |
+| **AI Assist** | $79 | Managed | 200 | Intake parse, note cleanup, customer summary, KB search |
+| **AI Copilot** | $149 | Managed | 500 | Full managed task coverage including diagnostics, QC, and voice |
+| **Enterprise AI** | Included with Enterprise | BYOK + Managed | Unlimited | Self-hosted routing, failover, audit, and compliance exports |
+
+## Task Coverage by Add-On
+
+| Task | AI Ready | AI Assist | AI Copilot | Enterprise AI |
+|------|:--------:|:---------:|:----------:|:-------------:|
+| Intake parse | ✓ | ✓ | ✓ | ✓ |
+| Note cleanup | ✓ | ✓ | ✓ | ✓ |
+| Customer summary | ✓ | ✓ | ✓ | ✓ |
+| KB search / KB chat completion | ✓ | ✓ | ✓ | ✓ |
+| Diagnostics assist | ✓ | — | ✓ | ✓ |
+| QC check | ✓ | — | ✓ | ✓ |
+| Voice-to-text | ✓ | — | ✓ | ✓ |
+| Manager insights | ✓ | — | ✓ | ✓ |
+
+### Tier Notes
+
+- Starter can use AI-powered workflow touchpoints when an add-on is enabled.
+- <TierBadge tier="pro" /> is required for advanced tasks such as diagnostics assist, QC check, manager insights, and voice-to-text.
+- <TierBadge tier="enterprise" /> is required for Ollama, fallback chains, and AI audit export workflows.
+
+## Authentication and Billing Modes
+
+### BYOK (Bring Your Own API Key)
+
+Use your own vendor keys for supported providers.
+
+**Setup**
+
+1. Go to **Settings** → **AI Gateway** → **Authentication**
+2. Select **BYOK**
+3. Add provider credentials
+4. Choose which providers can be used per task
+
+**Best for**
+
+- Teams with existing vendor contracts
+- Organizations that want direct provider billing
+- Shops that prefer full control over model spend
+
+### Managed Billing
+
+RepairOps manages provider usage for you and deducts from your monthly or purchased credit pools.
+
+**Setup**
+
+1. Go to **Settings** → **AI Gateway** → **Billing**
+2. Select the AI add-on you want
+3. Set a monthly budget
+4. Enable alerts
+
+**Best for**
+
+- Teams that want one invoice
+- Multi-user shops that need predictable budgets
+- Organizations that do not want to manage vendor keys directly
+
+## Credit Pools
+
+RepairOps uses two credit pools:
+
+### Monthly Pool
+
+Replenishes with your billing cycle:
+
+- **AI Assist** — 200 managed credits
+- **AI Copilot** — 500 managed credits
+- **Enterprise AI** — Unlimited managed access
+
+Monthly included credits do **not** roll over.
+
+### Purchased Credits
+
+Top up your managed pool anytime:
+
+| Pack | Price |
+|------|-------|
+| 100 credits | $15 |
+| 500 credits | $60 |
+| 1,000 credits | $100 |
+
+Purchased credits expire after 12 months of inactivity.
+
+## Typical Task Costs
+
+| Task | Credits |
+|------|---------|
+| Intake Parse | 1 |
+| Note Cleanup | 1 |
+| Customer Summary | 2 |
+| KB Search / KB Chat Completion | 1 |
+| Diagnostics Assist | 2 |
+| QC Check | 2 |
+| Voice-to-Text | 3 |
+| Manager Insights | 3 |
+
+## AI Workflows in RepairOps
+
+### Core Tasks <TierBadge tier="starter" />
+
+- **Intake Parse** — Pull structure from customer descriptions
+- **Note Cleanup** — Turn rough technician notes into polished text
+- **Customer Summary** — Generate customer-facing summaries
+- **KB Search / KB Chat** — Find and answer from your Knowledge Base
+
+### Advanced Tasks <TierBadge tier="pro" />
+
+- **Diagnostics Assist** — Suggest next diagnostic steps
+- **QC Check** — Generate AI-assisted pre-check ideas for completed work
+- **Voice-to-Text** — Convert voice notes into cleaned repair documentation
+- **Manager Insights** — Summarize weekly performance patterns
+
+## Budget Controls and Usage Visibility
+
+### Budget Caps
+
+1. Open **Settings** → **AI Gateway** → **Budget**
+2. Set a monthly spend ceiling
+3. Enable alerts at 75%, 90%, and 100%
+
+When you hit the budget limit:
+
+- Managed AI tasks are blocked
+- RepairOps surfaces an “AI budget exceeded” state in the UI
+- Owners and managers receive an alert
+
+### Usage Dashboard
+
+Use **Settings** → **AI Gateway** → **Usage** to review:
+
+- Remaining monthly credits
+- Purchased-credit balance
+- Usage by task type
+- Recent AI actions and outcomes
+
+## Fallback Chains <TierBadge tier="enterprise" />
+
+Enterprise customers can configure fallback chains for reliability:
+
+1. Open **Settings** → **AI Gateway** → **Providers**
+2. Select a primary provider
+3. Configure one or more fallbacks
+4. Save the routing order
+
+RepairOps will retry eligible requests on the next provider if the primary provider fails or times out.
+
+## AI Audit Trail <TierBadge tier="enterprise" />
+
+All AI tasks can be logged with:
+
+- Task type and timestamp
+- Provider used
+- Credit usage
+- User who triggered the action
+- Success or failure state
+
+This gives security and compliance teams a defensible record of AI activity across the organization.
+
+## Availability Summary
+
+| Feature | <TierBadge tier="starter" /> | <TierBadge tier="pro" /> | <TierBadge tier="enterprise" /> |
+|---------|:---------------------------:|:----------------------:|:-------------------------------:|
+| Basic AI workflow actions | ✓* | ✓* | ✓ |
+| Full AI Gateway settings | Limited | ✓ | ✓ |
+| Advanced AI tasks | — | ✓* | ✓ |
+| BYOK provider mode | ✓* | ✓* | ✓ |
+| Managed billing mode | ✓* | ✓* | ✓ |
+| Ollama self-hosted | — | — | ✓ |
+| Fallback chains | — | — | ✓ |
+| AI audit trail | — | — | ✓ |
+
+*Requires an AI add-on or Enterprise AI
+
+## Related Pages
+
+- **[Knowledge Base](/features/knowledge-base/)** — KB search and KB Chat usage
+- **[Analytics](/features/analytics/)** — Manager insights and AI-driven reporting
+- **[System Builder](/features/system-builder/)** — AI-assisted custom PC builds

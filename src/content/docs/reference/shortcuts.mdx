@@ -1,0 +1,84 @@
+---
+title: "Keyboard Shortcuts"
+description: "Speed up your RepairOps workflow with keyboard shortcuts"
+sidebar:
+  order: 4
+---
+
+import KeyboardShortcutTable from '../../../components/KeyboardShortcutTable.astro';
+
+export const globalShortcuts = [
+  { keys: 'Cmd/Ctrl + K', action: 'Open search' },
+  { keys: 'Cmd/Ctrl + N', action: 'Create a new ticket' },
+  { keys: 'Cmd/Ctrl + /', action: 'Toggle sidebar' },
+  { keys: 'Escape', action: 'Close modal, drawer, or sheet' },
+  { keys: '?', action: 'Open the current-page shortcut overlay' },
+];
+
+export const kanbanShortcuts = [
+  { keys: 'Left', action: 'Move to the previous column' },
+  { keys: 'Right', action: 'Move to the next column' },
+  { keys: 'Up', action: 'Move to the previous ticket' },
+  { keys: 'Down', action: 'Move to the next ticket' },
+  { keys: 'Enter', action: 'Open the selected ticket' },
+  { keys: '1 + 9', action: 'Jump to a numbered status column' },
+  { keys: 'F', action: 'Toggle fullscreen board mode' },
+  { keys: 'R', action: 'Refresh board data' },
+];
+
+export const ticketShortcuts = [
+  { keys: 'E', action: 'Edit ticket details' },
+  { keys: 'T', action: 'Open status transition picker' },
+  { keys: 'C', action: 'Add comment or internal note' },
+  { keys: 'P', action: 'Toggle photos panel' },
+  { keys: 'H', action: 'Open ticket history / timeline' },
+  { keys: 'Cmd/Ctrl + S', action: 'Save the current changes' },
+];
+
+export const diagnosticsShortcuts = [
+  { keys: 'Cmd/Ctrl + S', action: 'Save diagnostic notes' },
+  { keys: 'Tab', action: 'Move to the next checklist item' },
+  { keys: 'Shift + Tab', action: 'Move to the previous checklist item' },
+  { keys: 'Cmd/Ctrl + U', action: 'Upload photo or evidence' },
+  { keys: 'Cmd/Ctrl + Enter', action: 'Complete diagnostics' },
+];
+
+export const searchShortcuts = [
+  { keys: '/', action: 'Focus the in-page search input' },
+  { keys: 'Cmd/Ctrl + F', action: 'Open ticket filters' },
+  { keys: 'Cmd/Ctrl + Shift + F', action: 'Open advanced search' },
+];
+
+RepairOps supports keyboard shortcuts throughout the application to help you work faster. On macOS, use **Cmd**. On Windows and Linux, use **Ctrl**. Shortcuts are shown as **Cmd/Ctrl** below.
+
+## Global Shortcuts
+
+<KeyboardShortcutTable shortcuts={globalShortcuts} />
+
+## Kanban Board
+
+<KeyboardShortcutTable shortcuts={kanbanShortcuts} />
+
+:::tip
+Use number keys to jump across the main workflow columns without touching the mouse.
+:::
+
+## Ticket Detail
+
+<KeyboardShortcutTable shortcuts={ticketShortcuts} />
+
+## Diagnostics Workspace
+
+<KeyboardShortcutTable shortcuts={diagnosticsShortcuts} />
+
+## Search and Filters
+
+<KeyboardShortcutTable shortcuts={searchShortcuts} />
+
+## Tips
+
+**Discovering shortcuts** — Press **?** on any page to see a quick-reference overlay of shortcuts available in that context.
+
+**Search is powerful** — The **Cmd/Ctrl + K** search accepts ticket numbers (T001234), customer names, device identifiers, and status keywords. Results appear instantly as you type.
+
+**Chaining actions** — On the Kanban board, use arrow keys to select a ticket, press **Enter** to open it, then **T** to immediately transition its status. This three-keystroke flow replaces multiple clicks.

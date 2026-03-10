@@ -1,0 +1,261 @@
+---
+interface FeatureRow {
+  feature: string;
+  description?: string;
+  starter: string;
+  pro: string;
+  enterprise: string;
+}
+
+interface FeatureSection {
+  category: string;
+  rows: FeatureRow[];
+}
+
+interface Props {
+  sections: FeatureSection[];
+}
+
+const { sections } = Astro.props;
+
+function cellClass(value: string): string {
+  if (value === '✓') return 'fc-cell fc-cell--check';
+  if (value === '—') return 'fc-cell fc-cell--dash';
+  return 'fc-cell fc-cell--value';
+}
+---
+
+<div class="fc-wrapper">
+  <table class="fc-table">
+    <thead>
+      <tr>
+        <th class="fc-th fc-th--feature">Feature</th>
+        <th class="fc-th fc-th--tier fc-th--starter">
+          <span class="fc-tier-label">Starter</span>
+          <span class="fc-tier-price">$49/mo</span>
+        </th>
+        <th class="fc-th fc-th--tier fc-th--pro">
+          <span class="fc-tier-label">Pro</span>
+          <span class="fc-tier-price">$99/mo</span>
+        </th>
+        <th class="fc-th fc-th--tier fc-th--enterprise">
+          <span class="fc-tier-label">Enterprise</span>
+          <span class="fc-tier-price">$199/mo</span>
+        </th>
+      </tr>
+    </thead>
+    {sections.map((section, sectionIndex) => (
+      <tbody>
+        <tr class="fc-category-row">
+          <td colspan="4" class="fc-category">{section.category}</td>
+        </tr>
+        {section.rows.map((row, rowIndex) => {
+          const rowId = `fc-row-${sectionIndex}-${rowIndex}`;
+          return (
+            <tr class={`fc-row ${row.description ? 'fc-row--expandable' : ''}`}>
+              <td class="fc-feature">
+                {row.description ? (
+                  <button
+                    class="fc-feature__button"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls={`${rowId}-desc`}
+                    data-toggle={rowId}
+                  >
+                    <span class="fc-feature__name">{row.feature}</span>
+                    <span class="fc-feature__hint">Expand</span>
+                  </button>
+                ) : (
+                  <span class="fc-feature__name">{row.feature}</span>
+                )}
+                {row.description && (
+                  <p id={`${rowId}-desc`} class="fc-feature__desc" hidden>
+                    {row.description}
+                  </p>
+                )}
+              </td>
+              <td class={cellClass(row.starter)}>{row.starter}</td>
+              <td class={cellClass(row.pro)}>{row.pro}</td>
+              <td class={cellClass(row.enterprise)}>{row.enterprise}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    ))}
+  </table>
+</div>
+
+<script>
+  document.querySelectorAll('[data-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const controlId = button.dataset.toggle;
+      const description = document.getElementById(`${controlId}-desc`);
+      if (!description) return;
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      description.hidden = expanded;
+    });
+  });
+</script>
+
+<style>
+  .fc-wrapper {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--sl-color-accent) 4%, transparent), transparent 20%),
+      var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+  }
+
+  .fc-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+  }
+
+  .fc-th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    padding: 0.9rem 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    background: color-mix(in srgb, var(--sl-color-black) 92%, transparent);
+    backdrop-filter: blur(12px);
+    vertical-align: bottom;
+  }
+
+  .fc-th--feature {
+    text-align: left;
+    min-width: 18rem;
+  }
+
+  .fc-th--tier {
+    min-width: 8rem;
+  }
+
+  .fc-tier-label {
+    display: block;
+    font-weight: 800;
+    font-size: 0.96rem;
+  }
+
+  .fc-tier-price {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.74rem;
+  }
+
+  .fc-th--starter .fc-tier-label {
+    color: var(--tier-starter);
+  }
+
+  .fc-th--pro .fc-tier-label {
+    color: var(--tier-pro);
+  }
+
+  .fc-th--enterprise .fc-tier-label {
+    color: var(--tier-enterprise);
+  }
+
+  .fc-category-row {
+    background: transparent;
+  }
+
+  .fc-category {
+    padding: 0.7rem 0.85rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    border-bottom: 1px solid var(--sl-color-hairline);
+    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+    color: var(--sl-color-text-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .fc-row:nth-child(even) {
+    background: color-mix(in srgb, var(--sl-color-black) 18%, transparent);
+  }
+
+  .fc-feature,
+  .fc-cell {
+    border-bottom: 1px solid var(--sl-color-hairline);
+    padding: 0.8rem 0.75rem;
+    vertical-align: top;
+  }
+
+  .fc-feature {
+    text-align: left;
+  }
+
+  .fc-feature__name {
+    display: block;
+    font-weight: 700;
+  }
+
+  .fc-feature__button {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .fc-feature__hint {
+    color: var(--sl-color-gray-3);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .fc-feature__button[aria-expanded='true'] .fc-feature__hint {
+    color: var(--sl-color-text-accent);
+  }
+
+  .fc-feature__desc {
+    margin: 0.5rem 0 0;
+    color: var(--sl-color-gray-3);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .fc-cell {
+    text-align: center;
+  }
+
+  .fc-cell--check {
+    color: var(--ro-success);
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .fc-cell--dash {
+    color: var(--sl-color-gray-4);
+  }
+
+  .fc-cell--value {
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .fc-th--feature {
+      min-width: 13rem;
+    }
+
+    .fc-th--tier {
+      min-width: 6.5rem;
+    }
+  }
+</style>

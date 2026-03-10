@@ -1,0 +1,17 @@
+---
+interface Props {
+  tier: 'starter' | 'pro' | 'enterprise';
+}
+
+const { tier } = Astro.props;
+
+const labels: Record<string, string> = {
+  starter: 'Starter',
+  pro: 'Pro',
+  enterprise: 'Enterprise',
+};
+---
+
+<span class={`tier-badge tier-badge--${tier}`}>
+  {labels[tier]}
+</span>

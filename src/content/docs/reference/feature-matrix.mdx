@@ -1,0 +1,156 @@
+---
+title: "Feature Matrix"
+description: "Compare Starter, Pro, and Enterprise features side by side"
+sidebar:
+  order: 2
+---
+
+import FeatureCompare from '../../../components/FeatureCompare.astro';
+import TierBadge from '../../../components/TierBadge.astro';
+
+RepairOps offers three base tiers — <TierBadge tier="starter" />, <TierBadge tier="pro" />, and <TierBadge tier="enterprise" /> — plus separate AI add-ons. This page summarizes current pricing, hard limits, feature gates, and AI packaging.
+
+## Plan Overview
+
+| | Starter | Pro | Enterprise |
+|---|---------|-----|------------|
+| **Monthly Price** | $49 | $99 | $199 |
+| **Annual Price** | $470/yr | $950/yr | $1,910/yr |
+| **Best For** | Single-shop teams | Growing multi-shop ops | Franchises and compliance-heavy orgs |
+| **Trial** | 14 days + 50 AI credits | 14 days + 50 AI credits | Sales-assisted onboarding |
+
+Starter and Pro are self-serve. Enterprise onboarding is typically sales-assisted, but the same platform capabilities apply once provisioned.
+
+## Plan Limits
+
+| Resource | Starter | Pro | Enterprise |
+|----------|---------|-----|------------|
+| Work Orders / Month | 150 | Unlimited | Unlimited |
+| Users | 3 | 15 | Unlimited |
+| Shops | 1 | 5 | Unlimited |
+| SMS / Month | 100 | 500 | Unlimited |
+| Shop Displays | 0 | 1 | Unlimited |
+
+## Feature Comparison
+
+Click any row with a **+** to expand its description.
+
+<FeatureCompare sections={[
+  {
+    category: "Core Workflow",
+    rows: [
+      { feature: "Ticket state machine (13 statuses)", description: "Full repair lifecycle from intake through pickup and close, with role-based permissions and gate requirements.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Kanban board", description: "Real-time drag-and-drop dispatch board with workflow validation.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Customer portal", description: "Token-based portal for quotes, status tracking, payments, and messaging.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Diagnostics workspace", description: "Checklist-based diagnostics with notes, evidence, and time tracking.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Quoting + approval", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "QC review workflow", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Payments + invoice PDFs", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Deposits + partial payments", starter: "✓", pro: "✓", enterprise: "✓" },
+    ],
+  },
+  {
+    category: "Operations & Data",
+    rows: [
+      { feature: "Inventory management", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Service catalog", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "CSV import / export", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "PCRT migration", description: "Import legacy repair data into RepairOps.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Label printing", description: "Barcode and work-order label generation for supported printers.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Free plugins", starter: "✓", pro: "✓", enterprise: "✓" },
+    ],
+  },
+  {
+    category: "Knowledge, Guides, and AI",
+    rows: [
+      { feature: "Knowledge Base (articles + search)", description: "Create and publish internal repair documentation.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "KB Chat", description: "AI-assisted answers grounded in your knowledge base. Requires an AI add-on or Enterprise AI.", starter: "AI add-on", pro: "AI add-on", enterprise: "Included" },
+      { feature: "System Builder (manual mode)", description: "Create and share custom PC builds using the BuildCores component database.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "System Builder AI generation", description: "AI-assisted build generation. Requires an AI add-on or Enterprise AI.", starter: "AI add-on", pro: "AI add-on", enterprise: "Included" },
+      { feature: "iFixit Repair Guides", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "AI provider routing", description: "Starter can run supported AI actions with an add-on. Pro unlocks the full AI Gateway control plane.", starter: "Limited", pro: "Full", enterprise: "Full +" },
+    ],
+  },
+  {
+    category: "Analytics & Growth",
+    rows: [
+      { feature: "Basic KPI dashboard", description: "Revenue, throughput, turnaround, QC pass rate, and utilization.", starter: "✓", pro: "✓", enterprise: "✓" },
+      { feature: "Advanced analytics", description: "Trend charts, rankings, margin visibility, and retention views.", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "AI weekly insights", description: "AI-generated summaries of shop performance. Requires AI add-on on Pro.", starter: "—", pro: "AI add-on", enterprise: "Included" },
+      { feature: "Multi-shop operations", description: "Operate across multiple locations with shared visibility.", starter: "—", pro: "Up to 5", enterprise: "Unlimited" },
+      { feature: "Shop floor displays", starter: "—", pro: "1", enterprise: "Unlimited" },
+    ],
+  },
+  {
+    category: "Pro Plugins",
+    rows: [
+      { feature: "Plugin Marketplace", description: "Browse, install, and manage third-party or vendor plugins.", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "POS Terminal", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "Time Clock", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "Appointment Booking", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "Google Reviews", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "Customer Export", starter: "—", pro: "✓", enterprise: "✓" },
+      { feature: "Status Widget Pro", starter: "—", pro: "✓", enterprise: "✓" },
+    ],
+  },
+  {
+    category: "Enterprise Platform",
+    rows: [
+      { feature: "White-label branding", description: "Custom domain, logo, colors, and branded communications.", starter: "—", pro: "—", enterprise: "✓" },
+      { feature: "REST API + API keys", description: "Scoped API access, integration endpoints, and webhooks.", starter: "—", pro: "—", enterprise: "✓" },
+      { feature: "SSO / SAML", description: "OIDC and SAML-based sign-in for managed identity.", starter: "—", pro: "—", enterprise: "✓" },
+      { feature: "Self-hosted AI (Ollama)", description: "Run AI inference on your own hardware.", starter: "—", pro: "—", enterprise: "✓" },
+      { feature: "Fallback chains + AI audit export", description: "Enterprise-only reliability and compliance tooling for AI requests.", starter: "—", pro: "—", enterprise: "✓" },
+    ],
+  },
+]} />
+
+## AI Add-Ons
+
+| Add-On | Monthly Cost | Managed Credits | Capabilities |
+|--------|-------------|-----------------|--------------|
+| Disabled | $0 | 0 | No AI features |
+| AI Ready | $79 | 0 | BYOK-only access to supported AI tasks |
+| AI Assist | $79 | 200 | Intake parse, note cleanup, customer summary, KB search |
+| AI Copilot | $149 | 500 | Full managed AI task coverage |
+| Enterprise AI | Included with Enterprise | Unlimited | BYOK + managed + Ollama + fallback + audit |
+
+**AI Ready** and **AI Assist** cost the same, but they solve different problems. AI Ready is for BYOK teams. AI Assist is for teams that want managed usage and a predictable monthly credit pool.
+
+## Credit Packs
+
+Need more credits beyond your monthly allocation? Purchase credit packs at any time.
+
+| Pack | Credits | Price | Cost Per Credit |
+|------|---------|-------|-----------------|
+| Small | 100 | $15 | $0.15 |
+| Medium | 500 | $60 | $0.12 |
+| Large | 1,000 | $100 | $0.10 |
+
+Purchased credits are non-refundable and expire after 12 months of inactivity. Monthly included credits do not roll over.
+
+## Typical Task Costs
+
+| Task | Credits |
+|------|---------|
+| Intake parse | 1 |
+| Note cleanup | 1 |
+| Customer summary | 2 |
+| KB search / KB chat completion | 1 |
+| Diagnostics assist | 2 |
+| QC check | 2 |
+| Voice-to-text | 3 |
+| Manager insights | 3 |
+| System Builder AI generation | Varies by workflow |
+
+:::tip
+The fastest way to evaluate AI is to start with **Note cleanup** or **Intake parse**. They are low-cost tasks that immediately show value without changing your core process.
+:::
+
+## Choosing the Right Plan
+
+**<TierBadge tier="starter" /> Starter** is ideal for single-location shops with a small team. It includes the full repair workflow, Knowledge Base, iFixit guides, and manual System Builder workflows.
+
+**<TierBadge tier="pro" /> Pro** is designed for growing shops that need multiple locations, advanced analytics, the Plugin Marketplace, and the full AI Gateway control surface.
+
+**<TierBadge tier="enterprise" /> Enterprise** is built for organizations that require white-label branding, SSO, API access, self-hosted AI, and audit-ready controls.

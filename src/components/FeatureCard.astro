@@ -1,0 +1,65 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  tier?: 'starter' | 'pro' | 'enterprise';
+}
+
+const { title, description, href, tier } = Astro.props;
+
+const tierColors: Record<string, string> = {
+  starter: 'var(--tier-starter)',
+  pro: 'var(--tier-pro)',
+  enterprise: 'var(--tier-enterprise)',
+};
+---
+
+<a href={href} class="feature-card" style={tier ? `border-left-color: ${tierColors[tier]}` : ''}>
+  <div class="feature-card__header">
+    <h3 class="feature-card__title">{title}</h3>
+    {tier && (
+      <span class={`tier-badge tier-badge--${tier}`}>
+        {tier.charAt(0).toUpperCase() + tier.slice(1)}
+      </span>
+    )}
+  </div>
+  <p class="feature-card__desc">{description}</p>
+</a>
+
+<style>
+  .feature-card {
+    display: block;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-left: 3px solid var(--sl-color-accent);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .feature-card:hover {
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+  }
+
+  .feature-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .feature-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .feature-card__desc {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-3);
+  }
+</style>
