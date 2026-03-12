@@ -82,6 +82,7 @@ export default defineConfig({
             { label: 'Analytics & KPIs', slug: 'features/analytics' },
             { label: 'Plugins & Marketplace', slug: 'features/plugins' },
             { label: 'iFixit Repair Guides', slug: 'features/ifixit-guides' },
+            { label: 'Tagging System', slug: 'features/tagging' },
           ],
         },
         {
