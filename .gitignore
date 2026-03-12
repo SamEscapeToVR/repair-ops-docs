@@ -3,3 +3,25 @@ dist/
 .astro/
 .vercel/
 .DS_Store
+
+# Environment and secrets (never commit)
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Local IDE and editor config
+.claude/
+.cursor/
+
+# Internal build prompts (not needed for Vercel)
+PROMPTS.md
+
+# Legacy duplicate (canonical content is in src/content/docs/legal/)
+/legal/
+
+# OS and editor cruft
+*.log
+.idea/
+*.swp
+*.swo

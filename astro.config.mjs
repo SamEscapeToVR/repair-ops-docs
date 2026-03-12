@@ -85,6 +85,19 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Reports',
+          items: [
+            { label: 'Overview', slug: 'reports' },
+            { label: 'Day Report', slug: 'reports/day-report' },
+            { label: 'Sales Reports', slug: 'reports/sales-reports' },
+            { label: 'Payment Type Reports', slug: 'reports/payment-reports' },
+            { label: 'Sales Tax Report', slug: 'reports/sales-tax' },
+            { label: 'Fiscal Year Sales & Tax', slug: 'reports/fiscal-year' },
+            { label: 'Tax Configuration', slug: 'reports/tax-configuration' },
+            { label: 'Exporting Reports', slug: 'reports/exporting' },
+          ],
+        },
+        {
           label: 'Admin Guide',
           items: [
             { label: 'Overview', slug: 'admin' },

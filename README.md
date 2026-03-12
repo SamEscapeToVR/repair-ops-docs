@@ -37,6 +37,16 @@ Open [http://localhost:4321](http://localhost:4321) for local development with h
 | `src/styles/`       | Custom CSS (extends Starlight)             |
 | `astro.config.mjs`  | Astro + Starlight config, sidebar definition |
 
+## Deployment (Vercel)
+
+This is a **fully static site** — no environment variables or secrets are required. Vercel only needs:
+
+- **Framework:** Astro (auto-detected)
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+
+Connect the repo, and deployment works out of the box. No `.env` or API keys needed.
+
 ## Contributing
 
 Content lives in `src/content/docs/`. New pages require:
