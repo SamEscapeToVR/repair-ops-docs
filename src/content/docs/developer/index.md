@@ -31,6 +31,9 @@ Get started with the REST API in 3 steps:
 ### 1. Generate an API Key
 **Settings** → **API Keys** → **Generate New Key** → Select scope (Read/Write/Admin)
 
+<img src="/images/screenshots/light/desktop/settings-api-keys.png" alt="RepairOps API Key generation and management interface" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-api-keys.png" alt="RepairOps API Key generation and management interface" class="screenshot dark-only" loading="lazy" />
+
 ### 2. Make an API Call
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \

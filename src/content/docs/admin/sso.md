@@ -9,6 +9,9 @@ Single Sign-On (SSO) integration allows your team to log into RepairOps using yo
 
 **Available on:** Enterprise tier only.
 
+<img src="/images/gifs/enterprise-features-light.gif" alt="Enterprise features — SSO setup, API keys, branding, and admin operations" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/enterprise-features-dark.gif" alt="Enterprise features — SSO setup, API keys, branding, and admin operations" class="gif-demo dark-only" loading="lazy" />
+
 ## Supported Identity Providers
 
 RepairOps supports SAML 2.0 and OIDC (OpenID Connect):
@@ -39,6 +42,9 @@ RepairOps supports SAML 2.0 and OIDC (OpenID Connect):
    - **Metadata URL** — Full metadata document (share with your IdP)
 
 Save these values; you'll enter them in your identity provider.
+
+<img src="/images/screenshots/light/desktop/settings-sso.png" alt="RepairOps SSO/SAML configuration settings" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-sso.png" alt="RepairOps SSO/SAML configuration settings" class="screenshot dark-only" loading="lazy" />
 
 ### Step 2: Configure Identity Provider
 
@@ -245,6 +251,9 @@ Configure inactivity timeout:
 1. Every 90 days, rotate your Client Secret in your IdP
 2. Update in RepairOps: **Settings** → **Authentication** → **SSO**
 3. Test SSO before completing rotation
+
+<img src="/images/screenshots/light/desktop/settings-api-keys.png" alt="RepairOps API Key management for Enterprise integrations" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-api-keys.png" alt="RepairOps API Key management for Enterprise integrations" class="screenshot dark-only" loading="lazy" />
 
 ## Related Documentation
 

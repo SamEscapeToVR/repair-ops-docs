@@ -7,6 +7,9 @@ sidebar:
 
 System Builder enables your shop to design, quote, and sell custom computer systems to customers. With AI-assisted component selection, 31K+ components at your fingertips, and compatibility checking built-in, your team can create professional builds quickly.
 
+<img src="/images/screenshots/light/desktop/system-builder.png" alt="RepairOps System Builder with component selection and compatibility checking" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/system-builder.png" alt="RepairOps System Builder with component selection and compatibility checking" class="screenshot dark-only" loading="lazy" />
+
 ## Getting Started
 
 System Builder is available on **all tiers** (Starter, Pro, Enterprise). Advanced features like AI-assisted build generation require an **AI add-on** or **Enterprise AI**.
@@ -20,6 +23,9 @@ Navigate to **Shop** → **System Builder** to access:
 ## Creating a Custom Build
 
 ### Manual Build Creation
+
+<img src="/images/screenshots/light/desktop/builds-list.png" alt="RepairOps Builds List showing draft and completed system configurations" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/builds-list.png" alt="RepairOps Builds List showing draft and completed system configurations" class="screenshot dark-only" loading="lazy" />
 
 To manually select components:
 

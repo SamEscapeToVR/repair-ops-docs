@@ -9,6 +9,9 @@ Deploy RepairOps on your own infrastructure with Docker Compose. This guide cove
 
 **Available on:** Enterprise tier only.
 
+<img src="/images/screenshots/light/desktop/admin-ops.png" alt="RepairOps Admin Operations panel for self-hosted deployment management" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/admin-ops.png" alt="RepairOps Admin Operations panel for self-hosted deployment management" class="screenshot dark-only" loading="lazy" />
+
 ## Architecture Overview
 
 ```

@@ -31,6 +31,9 @@ When you drop off your device, you'll receive a **receipt card** with a QR code.
 
 > **Security Note:** This link is personal to you and your device. Don't share it. Anyone with the link can approve repairs and make payments on your behalf.
 
+<img src="/images/gifs/customer-journey-light.gif" alt="Customer portal experience — status tracking, quote approval, messaging, payment, and signature" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/customer-journey-dark.gif" alt="Customer portal experience — status tracking, quote approval, messaging, payment, and signature" class="gif-demo dark-only" loading="lazy" />
+
 ---
 
 ## Portal Layout Overview
@@ -45,6 +48,15 @@ Once you're logged in, you'll see:
 | **Messages** | Chat with the shop team |
 | **Payments** | Pay online, view invoices, download receipts |
 | **Device Details** | Photos, issue description, repair history |
+
+<div class="screenshot-pair light-only">
+  <img src="/images/screenshots/light/desktop/portal-status.png" alt="RepairOps Customer Portal status tracker on desktop" class="screenshot" loading="lazy" />
+  <img src="/images/screenshots/light/mobile/portal-status.png" alt="RepairOps Customer Portal status tracker on mobile" class="screenshot screenshot-mobile" loading="lazy" />
+</div>
+<div class="screenshot-pair dark-only">
+  <img src="/images/screenshots/dark/desktop/portal-status.png" alt="RepairOps Customer Portal status tracker on desktop" class="screenshot" loading="lazy" />
+  <img src="/images/screenshots/dark/mobile/portal-status.png" alt="RepairOps Customer Portal status tracker on mobile" class="screenshot screenshot-mobile" loading="lazy" />
+</div>
 
 ---
 
@@ -89,6 +101,9 @@ Mar 10, 3:00 PM — READY_FOR_PICKUP — Repair complete; device ready to pick u
 ## Reviewing and Approving Estimates
 
 When the shop completes diagnostics, they'll send you an estimate (quote). You'll see it in your portal with a button to approve or decline.
+
+<img src="/images/screenshots/light/desktop/portal-approval.png" alt="RepairOps Customer Portal quote approval screen" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-approval.png" alt="RepairOps Customer Portal quote approval screen" class="screenshot dark-only" loading="lazy" />
 
 ### What's in the Quote?
 
@@ -155,6 +170,9 @@ You: "Perfect. Approved."
 
 You can pay online (recommended) or at pickup.
 
+<img src="/images/screenshots/light/desktop/portal-payment.png" alt="RepairOps Customer Portal online payment screen" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-payment.png" alt="RepairOps Customer Portal online payment screen" class="screenshot dark-only" loading="lazy" />
+
 ### Paying Online (During Estimate Approval)
 
 When you approve the estimate, you'll see a **Payment** section:
@@ -188,6 +206,9 @@ If you don't pay online:
 
 Anytime you have a question, message the shop directly.
 
+<img src="/images/screenshots/light/desktop/portal-messages.png" alt="RepairOps Customer Portal messaging interface" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-messages.png" alt="RepairOps Customer Portal messaging interface" class="screenshot dark-only" loading="lazy" />
+
 ### Sending a Message
 
 1. Scroll to **Messages** section
@@ -219,6 +240,9 @@ Shop responses will appear in the **Messages** section. You'll also get an email
 ## Downloading Invoices and Receipts
 
 Once your repair is complete and paid, you can download your invoice.
+
+<img src="/images/screenshots/light/desktop/portal-signature.png" alt="RepairOps Customer Portal signature capture screen" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-signature.png" alt="RepairOps Customer Portal signature capture screen" class="screenshot dark-only" loading="lazy" />
 
 ### Finding Your Receipt
 

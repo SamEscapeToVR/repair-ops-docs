@@ -38,6 +38,9 @@ Pro adds scale and operational automation:
 - Multi-shop operations and 1 shop-floor display
 - Plugin Marketplace access plus POS Terminal, Time Clock, Appointment Booking, Google Reviews, Customer Export, and Status Widget Pro
 
+<img src="/images/screenshots/light/desktop/marketplace.png" alt="RepairOps Plugin Marketplace showing Pro tier extensions" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/marketplace.png" alt="RepairOps Plugin Marketplace showing Pro tier extensions" class="screenshot dark-only" loading="lazy" />
+
 ### Enterprise
 
 Enterprise adds platform and compliance features:
@@ -130,6 +133,9 @@ Upgrades take effect immediately. RepairOps and Stripe apply prorated credit for
 Downgrades normally take effect on the next renewal so your shop does not lose access mid-cycle. If the downgraded plan would put you over quota, RepairOps flags the affected resources before the change becomes active.
 
 ## Managing Your Subscription
+
+<img src="/images/screenshots/light/desktop/settings-billing.png" alt="RepairOps Billing settings showing plan details and usage meters" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-billing.png" alt="RepairOps Billing settings showing plan details and usage meters" class="screenshot dark-only" loading="lazy" />
 
 1. Open **Settings** → **Billing**.
 2. Review your current plan, renewal date, and usage meters.

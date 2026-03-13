@@ -7,6 +7,9 @@ sidebar:
 
 Welcome to the RepairOps admin guide. This section covers subscription management, security, branding, backups, and enterprise features.
 
+<img src="/images/screenshots/light/desktop/admin-ops.png" alt="RepairOps Admin Operations panel for organization management" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/admin-ops.png" alt="RepairOps Admin Operations panel for organization management" class="screenshot dark-only" loading="lazy" />
+
 ## Core Admin Topics
 
 ### [Billing & Subscriptions](/admin/billing/)
@@ -41,6 +44,9 @@ Configure 2FA, API key management, RLS (Row-Level Security), and audit logging. 
 - [ ] Test backups (restore to sandbox)
 
 ## Common Admin Tasks
+
+<img src="/images/screenshots/light/desktop/settings-general.png" alt="RepairOps General Settings for organization configuration" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-general.png" alt="RepairOps General Settings for organization configuration" class="screenshot dark-only" loading="lazy" />
 
 **I need to add a new team member**
 → Go to **Settings** → **Team** → **Invite Member**

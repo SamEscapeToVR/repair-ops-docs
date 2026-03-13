@@ -6,14 +6,19 @@ sidebar:
 ---
 
 import TierBadge from '../../../components/TierBadge.astro';
+import ThemedImage from '../../../components/ThemedImage.astro';
 
 The AI Gateway brings AI into RepairOps without locking your shop into a single model provider or billing strategy. Use it for intake parsing, note cleanup, KB search, diagnostics assistance, QC support, voice transcription, and manager reporting.
 
 Starter organizations can enable selected AI-powered workflows with an AI add-on. <TierBadge tier="pro" /> unlocks the full AI Gateway control plane and advanced task coverage. <TierBadge tier="enterprise" /> adds self-hosted providers, fallback chains, and audit exports.
 
+<ThemedImage light="/images/gifs/ai-features-light.gif" dark="/images/gifs/ai-features-dark.gif" alt="AI-powered features — AI settings, KB chat, system builder, and diagnostics assist" />
+
 ## Supported Providers
 
 RepairOps supports multiple providers so you can optimize for cost, speed, or compliance.
+
+<ThemedImage light="/images/screenshots/light/desktop/settings-ai.png" dark="/images/screenshots/dark/desktop/settings-ai.png" alt="RepairOps AI Provider settings with BYOK and managed options" />
 
 ### Cloud Providers
 
@@ -147,6 +152,8 @@ Purchased credits expire after 12 months of inactivity.
 - **KB Search / KB Chat** — Find and answer from your Knowledge Base
 
 ### Advanced Tasks <TierBadge tier="pro" />
+
+<ThemedImage light="/images/screenshots/light/desktop/diagnostics.png" dark="/images/screenshots/dark/desktop/diagnostics.png" alt="RepairOps Diagnostics view with AI-assisted analysis" />
 
 - **Diagnostics Assist** — Suggest next diagnostic steps
 - **QC Check** — Generate AI-assisted pre-check ideas for completed work

@@ -21,6 +21,12 @@ Get your RepairOps account up and running in 15 minutes.
 
 After login, you'll see the **Onboarding Wizard**. This takes about 10 minutes:
 
+<img src="/images/gifs/settings-walkthrough-light.gif" alt="RepairOps settings configuration walkthrough — general, shop, team, billing, branding, and tax settings" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/settings-walkthrough-dark.gif" alt="RepairOps settings configuration walkthrough — general, shop, team, billing, branding, and tax settings" class="gif-demo dark-only" loading="lazy" />
+
+<img src="/images/screenshots/light/desktop/settings-general.png" alt="RepairOps Settings showing general organization configuration" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-general.png" alt="RepairOps Settings showing general organization configuration" class="screenshot dark-only" loading="lazy" />
+
 ### 2a. Organization Details
 - **Organization Name** — Your repair shop name (e.g., "Tech Repair Pro")
 - **Industry** — Select "Electronics Repair"
@@ -52,6 +58,9 @@ Review your setup and click **"Complete Setup"**. You're now in the RepairOps da
 ## Step 3: Invite Your Team
 
 Your first ticket goes much smoother with team members. Invite them now:
+
+<img src="/images/screenshots/light/desktop/settings-team.png" alt="RepairOps Team settings showing team member management" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-team.png" alt="RepairOps Team settings showing team member management" class="screenshot dark-only" loading="lazy" />
 
 1. Click **Settings** → **Team** in the top navigation
 2. Click **"Invite Team Member"**
@@ -182,6 +191,9 @@ Now move this test ticket through the entire flow to see how it works:
 ## Step 8: Explore the Dashboard
 
 Now that you've seen the workflow, explore the dashboard:
+
+<img src="/images/screenshots/light/desktop/dashboard.png" alt="RepairOps Dashboard showing KPIs and recent tickets" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/dashboard.png" alt="RepairOps Dashboard showing KPIs and recent tickets" class="screenshot dark-only" loading="lazy" />
 
 - **Kanban Board** — See all tickets by status at a glance
 - **My Work** — Tasks assigned to the logged-in user

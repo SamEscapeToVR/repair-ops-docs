@@ -7,6 +7,9 @@ sidebar:
 
 RepairOps is designed around your team's roles. Whether you're managing the front desk, diagnosing devices, running quality checks, or overseeing the shop, this guide will walk you through your daily responsibilities.
 
+<img src="/images/screenshots/light/desktop/dashboard.png" alt="RepairOps Dashboard with role-based workflow overview" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/dashboard.png" alt="RepairOps Dashboard with role-based workflow overview" class="screenshot dark-only" loading="lazy" />
+
 ## Choose Your Role
 
 Select your role below to learn the specific workflows tailored to your position:
@@ -94,6 +97,9 @@ PICKED_UP (Front Desk collects)
   ↓
 CLOSED (Complete!)
 ```
+
+<img src="/images/screenshots/light/desktop/kanban.png" alt="RepairOps Kanban board showing ticket columns by repair status" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/kanban.png" alt="RepairOps Kanban board showing ticket columns by repair status" class="screenshot dark-only" loading="lazy" />
 
 ### Role Permissions Matrix
 

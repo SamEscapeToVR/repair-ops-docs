@@ -13,6 +13,9 @@ Secure your RepairOps organization with multi-factor authentication, API key man
 
 Protect your account from unauthorized access:
 
+<img src="/images/screenshots/light/desktop/two-factor-setup.png" alt="RepairOps Two-Factor Authentication setup with QR code and backup codes" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/two-factor-setup.png" alt="RepairOps Two-Factor Authentication setup with QR code and backup codes" class="screenshot dark-only" loading="lazy" />
+
 1. **Settings** → **Security** → **Two-Factor Authentication**
 2. Click **Enable 2FA**
 3. Select preferred method:
@@ -45,6 +48,9 @@ If you lose access to your authenticator app:
 4. Save in secure location (password manager, printed/locked)
 
 ## API Key Management
+
+<img src="/images/screenshots/light/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot dark-only" loading="lazy" />
 
 API keys allow external applications to access RepairOps data and workflows.
 

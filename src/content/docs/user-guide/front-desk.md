@@ -15,6 +15,9 @@ As the front-facing voice of your shop, you're the first person customers meet a
 4. **Pickup:** Verify customer identity, collect signatures, generate receipts
 5. **Communication:** Answer status questions, update customers on progress
 
+<img src="/images/gifs/repair-flow-light.gif" alt="Complete repair workflow — intake form to pickup completion" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/repair-flow-dark.gif" alt="Complete repair workflow — intake form to pickup completion" class="gif-demo dark-only" loading="lazy" />
+
 ---
 
 ## Intake: Creating a New Ticket
@@ -25,6 +28,9 @@ The intake wizard is your main tool for starting repairs. It captures all the da
 
 1. Click **"New Ticket"** (blue button, top-right corner)
 2. Or go to **Dashboard** → **Intake** → **"Start New Repair"**
+
+<img src="/images/screenshots/light/desktop/intake.png" alt="RepairOps Intake wizard for new repair check-in" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/intake.png" alt="RepairOps Intake wizard for new repair check-in" class="screenshot dark-only" loading="lazy" />
 
 ### Step 2: Customer Information
 
@@ -78,6 +84,9 @@ The system will:
 ## Building Quotes and Estimates
 
 Once the technician has diagnosed the device, they'll notify you (or a manager) to build the quote. This is where you collect payment authorization.
+
+<img src="/images/screenshots/light/desktop/quote-builder.png" alt="RepairOps Quote Builder with line items for parts, labor, and services" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/quote-builder.png" alt="RepairOps Quote Builder with line items for parts, labor, and services" class="screenshot dark-only" loading="lazy" />
 
 ### The Quote Contains:
 
@@ -150,6 +159,9 @@ If the customer doesn't respond within 24 hours:
 ## Processing Pickup and Payment
 
 When the customer arrives to pick up, you'll complete the repair and collect payment.
+
+<img src="/images/screenshots/light/desktop/pickup.png" alt="RepairOps Pickup screen with payment processing and signature capture" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/pickup.png" alt="RepairOps Pickup screen with payment processing and signature capture" class="screenshot dark-only" loading="lazy" />
 
 ### Step 1: Verify the Ticket is Ready
 
@@ -228,6 +240,9 @@ The customer gets:
 
 Customers want to know their device is safe and progressing. You're their main point of contact.
 
+<img src="/images/screenshots/light/desktop/portal-status.png" alt="RepairOps Customer Portal showing repair status tracker" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-status.png" alt="RepairOps Customer Portal showing repair status tracker" class="screenshot dark-only" loading="lazy" />
+
 ### Status Updates
 
 **In the Ticket:**
@@ -256,6 +271,9 @@ Customers often call/email asking "Is it done yet?" Here's how to help:
 ---
 
 ## Managing Appointments and Walkins
+
+<img src="/images/screenshots/light/desktop/customers.png" alt="RepairOps Customers list showing contact details and repair history" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/customers.png" alt="RepairOps Customers list showing contact details and repair history" class="screenshot dark-only" loading="lazy" />
 
 If your shop uses the appointment booking feature:
 

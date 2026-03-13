@@ -22,6 +22,9 @@ You're the heart of the repair operation. Your job is to diagnose devices accura
 
 Your queue is personalized — it shows only tickets assigned to you.
 
+<img src="/images/screenshots/light/desktop/tech-queue.png" alt="RepairOps Technician Queue showing assigned repair tickets" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/tech-queue.png" alt="RepairOps Technician Queue showing assigned repair tickets" class="screenshot dark-only" loading="lazy" />
+
 ### Accessing Your Queue
 
 1. Log in and go to **Dashboard**
@@ -62,6 +65,9 @@ You'll see:
 ## Diagnostics: Investigating the Issue
 
 Diagnostics is your chance to understand what's wrong. This phase is crucial — accurate diagnosis leads to accurate quotes, happy customers, and fewer reworks.
+
+<img src="/images/screenshots/light/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot dark-only" loading="lazy" />
 
 ### Step 1: Open the Ticket
 
@@ -136,6 +142,9 @@ Click **"Complete Diagnostics"** → Manager will build the quote → Device mov
 ## Repair Logging: Documenting Your Work
 
 Once the customer approves the quote (and parts arrive, if needed), you'll move into active repair.
+
+<img src="/images/screenshots/light/desktop/ticket-detail.png" alt="RepairOps Ticket Detail showing repair logs, parts used, and timeline" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/ticket-detail.png" alt="RepairOps Ticket Detail showing repair logs, parts used, and timeline" class="screenshot dark-only" loading="lazy" />
 
 ### Step 1: Start the Repair
 
@@ -238,6 +247,9 @@ Go to **My Profile** → **Time & Pay**:
 ---
 
 ## Parts Management: Requesting and Ordering
+
+<img src="/images/screenshots/light/desktop/inventory.png" alt="RepairOps Inventory management showing parts stock levels and reorder points" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/inventory.png" alt="RepairOps Inventory management showing parts stock levels and reorder points" class="screenshot dark-only" loading="lazy" />
 
 You'll often need parts. Here's how to request them.
 
@@ -377,6 +389,9 @@ Your manager is your support and dispatcher.
 ---
 
 ## Best Practices
+
+<img src="/images/screenshots/light/desktop/repair-guides.png" alt="RepairOps iFixit Repair Guides integrated into the workflow" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/repair-guides.png" alt="RepairOps iFixit Repair Guides integrated into the workflow" class="screenshot dark-only" loading="lazy" />
 
 1. **One device at a time.** Start to finish before moving to the next.
 

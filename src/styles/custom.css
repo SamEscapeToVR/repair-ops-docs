@@ -205,6 +205,63 @@ button,
     transform 160ms ease;
 }
 
+/* Theme-aware screenshot switching */
+:root[data-theme='dark'] .light-only,
+:root[data-theme='light'] .dark-only {
+  display: none !important;
+}
+
+/* Screenshot styling */
+.screenshot {
+  display: block;
+  max-width: 800px;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--sl-color-hairline);
+  box-shadow: var(--sl-shadow-md);
+  margin: 1.5rem 0;
+  height: auto;
+}
+
+.screenshot-mobile {
+  max-width: 280px;
+}
+
+.screenshot-pair {
+  display: flex;
+  gap: 1.5rem;
+  align-items: start;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.screenshot-pair .screenshot {
+  margin: 0;
+}
+
+.screenshot-pair .screenshot:first-child {
+  flex: 1;
+  min-width: 300px;
+  max-width: 560px;
+}
+
+.screenshot-pair .screenshot:last-child {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+/* GIF styling */
+.gif-demo {
+  display: block;
+  max-width: 800px;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--sl-color-hairline);
+  box-shadow: var(--sl-shadow-lg);
+  margin: 1.5rem 0;
+  height: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

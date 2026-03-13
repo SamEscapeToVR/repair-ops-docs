@@ -206,6 +206,9 @@ In this setup:
 
 ### Step 1: Go to Team Settings
 
+<img src="/images/screenshots/light/desktop/settings-team.png" alt="RepairOps Team settings for inviting and managing staff" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-team.png" alt="RepairOps Team settings for inviting and managing staff" class="screenshot dark-only" loading="lazy" />
+
 1. Click **Settings** (gear icon, top right)
 2. Click **Team** in the left sidebar
 3. Click **"Invite Team Member"** button
@@ -244,6 +247,9 @@ Click **"Send Invite"**.
 ### View All Team Members
 
 **Settings** → **Team**
+
+<img src="/images/screenshots/light/desktop/staff-presence.png" alt="RepairOps Staff Presence panel showing who is online and working" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/staff-presence.png" alt="RepairOps Staff Presence panel showing who is online and working" class="screenshot dark-only" loading="lazy" />
 
 You'll see a list showing:
 - Name

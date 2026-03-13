@@ -9,6 +9,9 @@ Customize RepairOps with your shop's branding. Set a custom domain, upload your 
 
 **Available on:** Enterprise tier only.
 
+<img src="/images/screenshots/light/desktop/settings-branding.png" alt="RepairOps White-Label Branding settings with custom domain, logo, and colors" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-branding.png" alt="RepairOps White-Label Branding settings with custom domain, logo, and colors" class="screenshot dark-only" loading="lazy" />
+
 ## Custom Domain
 
 Use your own domain (e.g., `repairs.yourshop.com`) instead of `yourshop.repairops.io`.

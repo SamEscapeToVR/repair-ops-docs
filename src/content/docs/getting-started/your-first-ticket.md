@@ -19,11 +19,17 @@ INTAKE → TRIAGE → DIAGNOSTICS → WAITING_APPROVAL
 
 Some tickets skip steps (e.g., no parts needed = skip WAITING_ON_PARTS). All paths can be voided at any time.
 
+<img src="/images/gifs/repair-flow-light.gif" alt="Complete repair workflow — intake to diagnostics to quote to QC to pickup" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/repair-flow-dark.gif" alt="Complete repair workflow — intake to diagnostics to quote to QC to pickup" class="gif-demo dark-only" loading="lazy" />
+
 ---
 
 ## Stage 1: INTAKE (Front Desk / Technician)
 
 **Purpose:** Collect basic information about the customer and device.
+
+<img src="/images/screenshots/light/desktop/intake.png" alt="RepairOps Intake form for new repair check-in" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/intake.png" alt="RepairOps Intake form for new repair check-in" class="screenshot dark-only" loading="lazy" />
 
 ### Starting the Intake
 
@@ -123,6 +129,9 @@ Usually a **Manager**, but the **Owner** can do it too. This prevents every cust
 
 **Purpose:** Investigate the device, identify the problem, and document findings.
 
+<img src="/images/screenshots/light/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot dark-only" loading="lazy" />
+
 ### Technician's Perspective
 
 1. **My Work** dashboard shows "New assignment: iPhone Screen Repair"
@@ -178,6 +187,9 @@ Evidence photos strengthen your quote and prove the work needed.
 ## Stage 4: WAITING_APPROVAL (Tech or Manager)
 
 **Purpose:** Create a detailed quote and send it to the customer for approval.
+
+<img src="/images/screenshots/light/desktop/quote-builder.png" alt="RepairOps Quote Builder with parts, labor, and total calculation" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/quote-builder.png" alt="RepairOps Quote Builder with parts, labor, and total calculation" class="screenshot dark-only" loading="lazy" />
 
 ### Build the Quote
 
@@ -334,6 +346,9 @@ When the repair is done:
 
 **Purpose:** Verify the repair meets quality standards before handoff to customer.
 
+<img src="/images/screenshots/light/desktop/qc-review.png" alt="RepairOps QC Review checklist and pass/fail controls" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/qc-review.png" alt="RepairOps QC Review checklist and pass/fail controls" class="screenshot dark-only" loading="lazy" />
+
 ### QC Specialist's Role
 
 1. QC specialist sees the ticket in the **QC_REVIEW** column
@@ -381,6 +396,9 @@ When the repair is done:
 ## Stage 8: READY_FOR_PICKUP (Customer Collection)
 
 **Purpose:** Prepare for customer to collect the device.
+
+<img src="/images/screenshots/light/desktop/pickup.png" alt="RepairOps Pickup screen with payment and signature capture" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/pickup.png" alt="RepairOps Pickup screen with payment and signature capture" class="screenshot dark-only" loading="lazy" />
 
 ### What Happens Automatically
 

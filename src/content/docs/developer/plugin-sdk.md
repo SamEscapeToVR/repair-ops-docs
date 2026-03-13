@@ -7,6 +7,9 @@ sidebar:
 
 Build custom plugins to extend RepairOps with new capabilities. Learn the manifest specification, event system, UI integration, and submission process.
 
+<img src="/images/screenshots/light/desktop/marketplace.png" alt="RepairOps Plugin Marketplace for distributing custom plugins" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/marketplace.png" alt="RepairOps Plugin Marketplace for distributing custom plugins" class="screenshot dark-only" loading="lazy" />
+
 ## What Are Plugins?
 
 Plugins are modular TypeScript/JavaScript packages that add features to RepairOps:

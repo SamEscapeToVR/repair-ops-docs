@@ -7,6 +7,9 @@ sidebar:
 
 Protect your data with automated daily backups. Configure retention policies, manually trigger backups, and export data for compliance and disaster recovery.
 
+<img src="/images/screenshots/light/desktop/admin-ops.png" alt="RepairOps Admin Operations panel with backup and export controls" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/admin-ops.png" alt="RepairOps Admin Operations panel with backup and export controls" class="screenshot dark-only" loading="lazy" />
+
 ## Backup Strategy
 
 RepairOps uses a **3-2-1 backup strategy**:
@@ -145,6 +148,9 @@ Export your data in standard formats (CSV, JSON) for:
 5. Download begins (size typically 10 MB - 1 GB)
 
 Export files are encrypted and available for 30 days.
+
+<img src="/images/screenshots/light/desktop/import-export.png" alt="RepairOps Import/Export interface for data portability" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/import-export.png" alt="RepairOps Import/Export interface for data portability" class="screenshot dark-only" loading="lazy" />
 
 ### CSV Format Details
 

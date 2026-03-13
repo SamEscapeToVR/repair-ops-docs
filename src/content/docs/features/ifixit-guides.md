@@ -9,6 +9,9 @@ Integrate iFixit's library of 70,000+ repair guides directly into RepairOps. Sea
 
 **Available on:** Pro and Enterprise tiers (requires commercial iFixit license).
 
+<img src="/images/screenshots/light/desktop/repair-guides.png" alt="RepairOps iFixit Repair Guides with step-by-step instructions" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/repair-guides.png" alt="RepairOps iFixit Repair Guides with step-by-step instructions" class="screenshot dark-only" loading="lazy" />
+
 ## Accessing iFixit Guides
 
 ### Search Interface

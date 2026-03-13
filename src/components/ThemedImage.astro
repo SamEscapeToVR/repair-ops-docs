@@ -1,0 +1,64 @@
+---
+interface Props {
+  light: string;
+  dark: string;
+  alt: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  width?: string;
+}
+
+const { light, dark, alt, class: className, loading = 'lazy', width } = Astro.props;
+const style = width ? `max-width: ${width}; width: 100%;` : 'max-width: 800px; width: 100%;';
+---
+<picture class:list={['themed-image', className]}>
+  <source srcset={dark} media="(prefers-color-scheme: dark)" />
+  <img src={light} alt={alt} loading={loading} style={style} />
+</picture>
+
+<style>
+  :global(:root[data-theme='dark']) .themed-image source {
+    /* Dark source is used via media query as fallback */
+  }
+  :global(:root[data-theme='dark']) .themed-image img {
+    content: var(--dark-src);
+  }
+  .themed-image {
+    display: block;
+    margin: 1.5rem 0;
+  }
+  .themed-image img {
+    border-radius: 0.75rem;
+    border: 1px solid var(--sl-color-hairline);
+    box-shadow: var(--sl-shadow-md);
+    height: auto;
+  }
+</style>
+
+<script define:vars={{ light, dark }}>
+  // Handle Starlight's theme toggle (data-theme attribute)
+  const picture = document.currentScript?.previousElementSibling;
+  if (picture) {
+    const img = picture.querySelector('img');
+    const source = picture.querySelector('source');
+
+    function updateTheme() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      if (theme === 'dark') {
+        img.src = dark;
+        if (source) source.srcset = dark;
+      } else {
+        img.src = light;
+        if (source) source.srcset = light;
+      }
+    }
+
+    updateTheme();
+
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+  }
+</script>

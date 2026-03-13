@@ -27,6 +27,9 @@ Open **Settings** → **Billing** to review:
 - Active AI add-on
 - Recent invoices and payment method
 
+<img src="/images/screenshots/light/desktop/settings-billing.png" alt="RepairOps Billing settings showing plan, usage meters, and invoices" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-billing.png" alt="RepairOps Billing settings showing plan, usage meters, and invoices" class="screenshot dark-only" loading="lazy" />
+
 ### Upgrade
 
 Upgrades take effect immediately. Stripe prorates the remaining value of your current plan and bills the difference for the rest of the cycle.

@@ -16,6 +16,9 @@ As a manager, you're the orchestrator of your shop's operations. You balance cus
 5. **Staff Management:** Track attendance, clock monitoring, performance review
 6. **KPI Monitoring:** Track turnaround time, revenue, alerts, and bottlenecks
 
+<img src="/images/gifs/dashboard-overview-light.gif" alt="RepairOps Management Dashboard tour — dashboard, analytics, heartbeat, and reports" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/dashboard-overview-dark.gif" alt="RepairOps Management Dashboard tour — dashboard, analytics, heartbeat, and reports" class="gif-demo dark-only" loading="lazy" />
+
 ---
 
 ## Triage: Receiving and Assigning Tickets
@@ -101,6 +104,9 @@ Click **"Confirm Assignment"**.
 ## The Kanban Board: Your Daily Workspace
 
 The Kanban board is your visual command center. It shows all tickets by status and who they're assigned to.
+
+<img src="/images/screenshots/light/desktop/kanban.png" alt="RepairOps Kanban board showing ticket columns by repair status" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/kanban.png" alt="RepairOps Kanban board showing ticket columns by repair status" class="screenshot dark-only" loading="lazy" />
 
 ### Accessing the Kanban Board
 
@@ -280,6 +286,9 @@ If a tech has multiple QC failures:
 
 ### Who's Online and Working?
 
+<img src="/images/screenshots/light/desktop/reports.png" alt="RepairOps Reports hub with daily, tax, and payment reports" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/reports.png" alt="RepairOps Reports hub with daily, tax, and payment reports" class="screenshot dark-only" loading="lazy" />
+
 Go to **Dashboard** → **Staff Presence** (or "Who's Online"):
 
 You see:
@@ -321,6 +330,9 @@ Go to **Staff** → **Time & Attendance**:
 
 Your shop's heartbeat is captured in KPIs. Check them daily.
 
+<img src="/images/screenshots/light/desktop/analytics.png" alt="RepairOps Analytics dashboard with revenue, throughput, and turnaround metrics" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/analytics.png" alt="RepairOps Analytics dashboard with revenue, throughput, and turnaround metrics" class="screenshot dark-only" loading="lazy" />
+
 ### Key Performance Indicators
 
 Go to **Dashboard** → **KPIs** or **Analytics**:
@@ -334,6 +346,9 @@ Go to **Dashboard** → **KPIs** or **Analytics**:
 | **Revenue This Month** | Budget target | Check quote approvals, avoid discounts |
 | **Ticket Volume** | Projected | Hire if backlog growing |
 | **Customer Satisfaction** | 4.5+ stars | Fix QC issues, improve communication |
+
+<img src="/images/screenshots/light/desktop/heartbeat.png" alt="RepairOps Heartbeat monitor showing real-time shop activity" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/heartbeat.png" alt="RepairOps Heartbeat monitor showing real-time shop activity" class="screenshot dark-only" loading="lazy" />
 
 #### Technician-Level Metrics
 
