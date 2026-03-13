@@ -85,14 +85,14 @@ The system will:
 
 Once the technician has diagnosed the device, they'll notify you (or a manager) to build the quote. This is where you collect payment authorization.
 
-<img src="/images/screenshots/light/desktop/quote-builder.png" alt="RepairOps Quote Builder with line items for parts, labor, and services" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/quote-builder.png" alt="RepairOps Quote Builder with line items for parts, labor, and services" class="screenshot dark-only" loading="lazy" />
-
 ### The Quote Contains:
 
 - **Parts:** Replacement parts needed (e.g., "iPhone 14 Screen - $80")
 - **Labor:** Technician hours (e.g., "2 hours @ $50/hr = $100")
 - **Services:** Add-ons like rush fees, diagnostics, or insurance
+
+<img src="/images/screenshots/light/desktop/quote-builder.png" alt="RepairOps Quote Builder with line items for parts, labor, and services" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/quote-builder.png" alt="RepairOps Quote Builder with line items for parts, labor, and services" class="screenshot dark-only" loading="lazy" />
 
 ### Step 1: Open the Ticket
 
@@ -160,12 +160,12 @@ If the customer doesn't respond within 24 hours:
 
 When the customer arrives to pick up, you'll complete the repair and collect payment.
 
-<img src="/images/screenshots/light/desktop/pickup.png" alt="RepairOps Pickup screen with payment processing and signature capture" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/pickup.png" alt="RepairOps Pickup screen with payment processing and signature capture" class="screenshot dark-only" loading="lazy" />
-
 ### Step 1: Verify the Ticket is Ready
 
 The ticket should be in **READY_FOR_PICKUP** status (meaning QC approved the device). If not, check with the manager — the device may still be in repair or QC.
+
+<img src="/images/screenshots/light/desktop/pickup.png" alt="RepairOps Pickup screen with payment processing and signature capture" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/pickup.png" alt="RepairOps Pickup screen with payment processing and signature capture" class="screenshot dark-only" loading="lazy" />
 
 ### Step 2: Verify Customer Identity
 
@@ -240,9 +240,6 @@ The customer gets:
 
 Customers want to know their device is safe and progressing. You're their main point of contact.
 
-<img src="/images/screenshots/light/desktop/portal-status.png" alt="RepairOps Customer Portal showing repair status tracker" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/portal-status.png" alt="RepairOps Customer Portal showing repair status tracker" class="screenshot dark-only" loading="lazy" />
-
 ### Status Updates
 
 **In the Ticket:**
@@ -255,6 +252,9 @@ Customers want to know their device is safe and progressing. You're their main p
 - When quote is ready: "Here's your estimate. Click the link to approve."
 - When repair is starting: "Work begins today. We'll send you an update tomorrow."
 - When device is done: "Great news — your phone is ready for pickup!"
+
+<img src="/images/screenshots/light/desktop/portal-status.png" alt="RepairOps Customer Portal showing repair status tracker" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-status.png" alt="RepairOps Customer Portal showing repair status tracker" class="screenshot dark-only" loading="lazy" />
 
 ### Answering Status Questions
 
@@ -272,9 +272,6 @@ Customers often call/email asking "Is it done yet?" Here's how to help:
 
 ## Managing Appointments and Walkins
 
-<img src="/images/screenshots/light/desktop/customers.png" alt="RepairOps Customers list showing contact details and repair history" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/customers.png" alt="RepairOps Customers list showing contact details and repair history" class="screenshot dark-only" loading="lazy" />
-
 If your shop uses the appointment booking feature:
 
 ### Viewing the Calendar
@@ -283,6 +280,9 @@ If your shop uses the appointment booking feature:
 2. See all scheduled appointments for this week
 3. Time slots show which technicians are available
 4. Color coding: Green = available, Red = booked
+
+<img src="/images/screenshots/light/desktop/customers.png" alt="RepairOps Customers list showing contact details and repair history" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/customers.png" alt="RepairOps Customers list showing contact details and repair history" class="screenshot dark-only" loading="lazy" />
 
 ### Scheduling an Appointment
 

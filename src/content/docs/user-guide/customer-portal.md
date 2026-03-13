@@ -102,9 +102,6 @@ Mar 10, 3:00 PM — READY_FOR_PICKUP — Repair complete; device ready to pick u
 
 When the shop completes diagnostics, they'll send you an estimate (quote). You'll see it in your portal with a button to approve or decline.
 
-<img src="/images/screenshots/light/desktop/portal-approval.png" alt="RepairOps Customer Portal quote approval screen" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/portal-approval.png" alt="RepairOps Customer Portal quote approval screen" class="screenshot dark-only" loading="lazy" />
-
 ### What's in the Quote?
 
 The estimate lists all costs:
@@ -133,6 +130,9 @@ TOTAL:                                        $228.00
 - **Parts:** Are they the right ones? (OEM vs. aftermarket quality)
 - **Labor:** Does the time seem reasonable?
 - **Cost:** Does it match what you expected?
+
+<img src="/images/screenshots/light/desktop/portal-approval.png" alt="RepairOps Customer Portal quote approval screen" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-approval.png" alt="RepairOps Customer Portal quote approval screen" class="screenshot dark-only" loading="lazy" />
 
 ### Approving the Quote
 
@@ -170,9 +170,6 @@ You: "Perfect. Approved."
 
 You can pay online (recommended) or at pickup.
 
-<img src="/images/screenshots/light/desktop/portal-payment.png" alt="RepairOps Customer Portal online payment screen" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/portal-payment.png" alt="RepairOps Customer Portal online payment screen" class="screenshot dark-only" loading="lazy" />
-
 ### Paying Online (During Estimate Approval)
 
 When you approve the estimate, you'll see a **Payment** section:
@@ -188,6 +185,9 @@ When you approve the estimate, you'll see a **Payment** section:
 - Faster pickup (no payment step)
 - Confirmation email immediately
 - Payment recorded for your records
+
+<img src="/images/screenshots/light/desktop/portal-payment.png" alt="RepairOps Customer Portal online payment screen" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-payment.png" alt="RepairOps Customer Portal online payment screen" class="screenshot dark-only" loading="lazy" />
 
 ### Paying at Pickup
 
@@ -206,9 +206,6 @@ If you don't pay online:
 
 Anytime you have a question, message the shop directly.
 
-<img src="/images/screenshots/light/desktop/portal-messages.png" alt="RepairOps Customer Portal messaging interface" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/portal-messages.png" alt="RepairOps Customer Portal messaging interface" class="screenshot dark-only" loading="lazy" />
-
 ### Sending a Message
 
 1. Scroll to **Messages** section
@@ -218,6 +215,9 @@ Anytime you have a question, message the shop directly.
    - "Is my device covered by warranty?"
    - "Can you recommend a protective case?"
 4. Click **"Send"**
+
+<img src="/images/screenshots/light/desktop/portal-messages.png" alt="RepairOps Customer Portal messaging interface" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-messages.png" alt="RepairOps Customer Portal messaging interface" class="screenshot dark-only" loading="lazy" />
 
 **Response time:**
 - Weekdays: Usually 2-4 hours
@@ -241,9 +241,6 @@ Shop responses will appear in the **Messages** section. You'll also get an email
 
 Once your repair is complete and paid, you can download your invoice.
 
-<img src="/images/screenshots/light/desktop/portal-signature.png" alt="RepairOps Customer Portal signature capture screen" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/portal-signature.png" alt="RepairOps Customer Portal signature capture screen" class="screenshot dark-only" loading="lazy" />
-
 ### Finding Your Receipt
 
 1. Scroll to **Payment & Invoice** section
@@ -253,6 +250,9 @@ Once your repair is complete and paid, you can download your invoice.
    - Total paid
    - Payment method
    - Shop's name, phone, address
+
+<img src="/images/screenshots/light/desktop/portal-signature.png" alt="RepairOps Customer Portal signature capture screen" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/portal-signature.png" alt="RepairOps Customer Portal signature capture screen" class="screenshot dark-only" loading="lazy" />
 
 ### Downloading as PDF
 

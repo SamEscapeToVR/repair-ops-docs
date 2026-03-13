@@ -13,9 +13,6 @@ Secure your RepairOps organization with multi-factor authentication, API key man
 
 Protect your account from unauthorized access:
 
-<img src="/images/screenshots/light/desktop/two-factor-setup.png" alt="RepairOps Two-Factor Authentication setup with QR code and backup codes" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/two-factor-setup.png" alt="RepairOps Two-Factor Authentication setup with QR code and backup codes" class="screenshot dark-only" loading="lazy" />
-
 1. **Settings** → **Security** → **Two-Factor Authentication**
 2. Click **Enable 2FA**
 3. Select preferred method:
@@ -24,6 +21,9 @@ Protect your account from unauthorized access:
    - **Backup Codes** — One-time codes (save in secure location)
 4. Complete setup (scan QR code, confirm code)
 5. Save backup codes in a secure location
+
+<img src="/images/screenshots/light/desktop/two-factor-setup.png" alt="RepairOps Two-Factor Authentication setup with QR code and backup codes" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/two-factor-setup.png" alt="RepairOps Two-Factor Authentication setup with QR code and backup codes" class="screenshot dark-only" loading="lazy" />
 
 ### Requiring 2FA for All Team Members
 
@@ -49,9 +49,6 @@ If you lose access to your authenticator app:
 
 ## API Key Management
 
-<img src="/images/screenshots/light/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot dark-only" loading="lazy" />
-
 API keys allow external applications to access RepairOps data and workflows.
 
 ### Creating an API Key
@@ -68,6 +65,9 @@ API keys allow external applications to access RepairOps data and workflows.
    - Recommended: 90 days (auto-rotate)
 6. Click **Create**
 7. **Copy the key immediately** (only shown once)
+
+<img src="/images/screenshots/light/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot dark-only" loading="lazy" />
 
 ### Using API Keys
 

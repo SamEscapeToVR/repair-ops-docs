@@ -18,13 +18,23 @@ hero:
 ---
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
-import ThemedImage from '../../components/ThemedImage.astro';
+import ShowcaseGallery from '../../components/ShowcaseGallery.astro';
 
-<ThemedImage light="/images/gifs/repair-flow-light.gif" dark="/images/gifs/repair-flow-dark.gif" alt="RepairOps complete repair workflow from intake to pickup" />
-
-<ThemedImage light="/images/screenshots/light/desktop/dashboard.png" dark="/images/screenshots/dark/desktop/dashboard.png" alt="RepairOps Dashboard showing KPIs and recent tickets" />
-
-<ThemedImage light="/images/screenshots/light/desktop/kanban.png" dark="/images/screenshots/dark/desktop/kanban.png" alt="RepairOps Kanban board showing ticket columns by repair status" />
+<ShowcaseGallery
+  hero={{
+    light: "/images/gifs/repair-flow-light.gif",
+    dark: "/images/gifs/repair-flow-dark.gif",
+    alt: "RepairOps complete repair workflow from intake to pickup"
+  }}
+  items={[
+    { light: "/images/screenshots/light/desktop/dashboard.png", dark: "/images/screenshots/dark/desktop/dashboard.png", alt: "RepairOps Dashboard with KPIs", label: "Dashboard", href: "/getting-started/quick-start/" },
+    { light: "/images/screenshots/light/desktop/kanban.png", dark: "/images/screenshots/dark/desktop/kanban.png", alt: "Kanban board with ticket columns", label: "Kanban Board", href: "/user-guide/manager/" },
+    { light: "/images/screenshots/light/desktop/ticket-detail.png", dark: "/images/screenshots/dark/desktop/ticket-detail.png", alt: "Ticket detail with repair logs", label: "Ticket Detail", href: "/getting-started/your-first-ticket/" },
+    { light: "/images/screenshots/light/desktop/analytics.png", dark: "/images/screenshots/dark/desktop/analytics.png", alt: "Analytics dashboard with metrics", label: "Analytics", href: "/features/analytics/" },
+    { light: "/images/screenshots/light/desktop/portal-status.png", dark: "/images/screenshots/dark/desktop/portal-status.png", alt: "Customer portal status tracker", label: "Customer Portal", href: "/user-guide/customer-portal/" },
+    { light: "/images/screenshots/light/desktop/marketplace.png", dark: "/images/screenshots/dark/desktop/marketplace.png", alt: "Plugin Marketplace", label: "Plugin Marketplace", href: "/features/plugins/" },
+  ]}
+/>
 
 ## Getting Started
 

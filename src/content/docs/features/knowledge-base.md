@@ -7,15 +7,9 @@ sidebar:
 
 The Knowledge Base transforms your repair shop into a learning organization. Build a searchable library of articles, procedures, and troubleshooting guides. Augment it with AI-powered chat that finds answers instantly using retrieval-augmented generation (RAG).
 
-<img src="/images/gifs/knowledge-content-light.gif" alt="Knowledge Base and AI Chat — articles, AI-powered search, and repair guides" class="gif-demo light-only" loading="lazy" />
-<img src="/images/gifs/knowledge-content-dark.gif" alt="Knowledge Base and AI Chat — articles, AI-powered search, and repair guides" class="gif-demo dark-only" loading="lazy" />
-
 ## Creating and Managing Articles
 
 ### Article Authoring
-
-<img src="/images/screenshots/light/desktop/knowledge-base.png" alt="RepairOps Knowledge Base with searchable repair articles" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/knowledge-base.png" alt="RepairOps Knowledge Base with searchable repair articles" class="screenshot dark-only" loading="lazy" />
 
 Articles are created using a rich-text editor with support for:
 - Formatting (bold, italic, underline, strikethrough, headers)
@@ -34,6 +28,12 @@ To create a new article:
 6. Write your article content in the editor
 7. Attach supporting files (images, PDFs, manuals)
 8. Save as **Draft** (visible only to editors) or **Published** (visible to all staff)
+
+<img src="/images/gifs/knowledge-content-light.gif" alt="Knowledge Base and AI Chat — articles, AI-powered search, and repair guides" class="gif-demo light-only" loading="lazy" />
+<img src="/images/gifs/knowledge-content-dark.gif" alt="Knowledge Base and AI Chat — articles, AI-powered search, and repair guides" class="gif-demo dark-only" loading="lazy" />
+
+<img src="/images/screenshots/light/desktop/knowledge-base.png" alt="RepairOps Knowledge Base with searchable repair articles" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/knowledge-base.png" alt="RepairOps Knowledge Base with searchable repair articles" class="screenshot dark-only" loading="lazy" />
 
 ### Organization & Discoverability
 
@@ -91,15 +91,15 @@ These articles serve as templates and examples. Edit them to match your shop's p
 
 ### What is KB Chat?
 
-<img src="/images/screenshots/light/desktop/kb-chat.png" alt="RepairOps KB Chat with AI-powered search and answers" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/kb-chat.png" alt="RepairOps KB Chat with AI-powered search and answers" class="screenshot dark-only" loading="lazy" />
-
 KB Chat is an AI-powered assistant that answers questions about your knowledge base using retrieval-augmented generation (RAG). Instead of searching manually, ask a natural-language question and get an instant answer with citations.
 
 **Example:**
 > "How do I handle a MacBook with a water-damaged trackpad?"
 
 KB Chat finds relevant articles, extracts key information, and generates a concise answer with links to read the full articles.
+
+<img src="/images/screenshots/light/desktop/kb-chat.png" alt="RepairOps KB Chat with AI-powered search and answers" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/kb-chat.png" alt="RepairOps KB Chat with AI-powered search and answers" class="screenshot dark-only" loading="lazy" />
 
 ### Using KB Chat
 

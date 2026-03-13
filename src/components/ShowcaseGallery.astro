@@ -1,0 +1,144 @@
+---
+/**
+ * ShowcaseGallery — Homepage screenshot gallery with themed light/dark support.
+ * Displays a featured hero image/GIF and a grid of labeled screenshots.
+ */
+interface GalleryItem {
+  light: string;
+  dark: string;
+  alt: string;
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  hero: { light: string; dark: string; alt: string };
+  items: GalleryItem[];
+}
+
+const { hero, items } = Astro.props;
+---
+
+<div class="showcase">
+  <div class="showcase-hero">
+    <img class="showcase-hero__img" data-light={hero.light} data-dark={hero.dark} src={hero.light} alt={hero.alt} loading="eager" />
+  </div>
+
+  <div class="showcase-grid">
+    {items.map((item) => (
+      <a class="showcase-card" href={item.href || '#'} data-no-link={!item.href ? 'true' : undefined}>
+        <div class="showcase-card__frame">
+          <img data-light={item.light} data-dark={item.dark} src={item.light} alt={item.alt} loading="lazy" />
+        </div>
+        <span class="showcase-card__label">{item.label}</span>
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .showcase {
+    margin: 2rem 0 2.5rem;
+  }
+
+  /* Hero image */
+  .showcase-hero {
+    margin-bottom: 1.5rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--sl-color-hairline);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--sl-color-accent) 10%, transparent),
+      var(--sl-shadow-lg);
+    background: var(--sl-color-bg-nav);
+    max-height: 420px;
+  }
+
+  .showcase-hero__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  /* Grid */
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .showcase-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Cards */
+  .showcase-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none !important;
+    color: inherit;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    border: 1px solid var(--sl-color-hairline);
+    background: var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-sm);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .showcase-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sl-shadow-lg);
+    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, transparent);
+  }
+
+  .showcase-card[data-no-link='true'] {
+    pointer-events: none;
+  }
+
+  .showcase-card__frame {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, var(--sl-color-bg));
+  }
+
+  .showcase-card__frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+  }
+
+  .showcase-card__label {
+    display: block;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--sl-color-text);
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+</style>
+
+<script>
+  function applyTheme() {
+    const theme = document.documentElement.getAttribute('data-theme') || 'light';
+    const key = theme === 'dark' ? 'dark' : 'light';
+    document.querySelectorAll('.showcase img[data-light]').forEach((img) => {
+      const src = (img as HTMLImageElement).getAttribute(`data-${key}`);
+      if (src) (img as HTMLImageElement).src = src;
+    });
+  }
+
+  applyTheme();
+
+  const observer = new MutationObserver(applyTheme);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
+</script>

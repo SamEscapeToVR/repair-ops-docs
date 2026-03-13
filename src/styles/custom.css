@@ -214,12 +214,12 @@ button,
 /* Screenshot styling */
 .screenshot {
   display: block;
-  max-width: 800px;
+  max-width: 640px;
   width: 100%;
   border-radius: 0.75rem;
   border: 1px solid var(--sl-color-hairline);
   box-shadow: var(--sl-shadow-md);
-  margin: 1.5rem 0;
+  margin: 1.25rem 0;
   height: auto;
 }
 
@@ -253,12 +253,12 @@ button,
 /* GIF styling */
 .gif-demo {
   display: block;
-  max-width: 800px;
+  max-width: 640px;
   width: 100%;
   border-radius: 0.75rem;
   border: 1px solid var(--sl-color-hairline);
   box-shadow: var(--sl-shadow-lg);
-  margin: 1.5rem 0;
+  margin: 1.25rem 0;
   height: auto;
 }
 

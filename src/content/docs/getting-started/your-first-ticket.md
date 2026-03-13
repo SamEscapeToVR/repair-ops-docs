@@ -28,13 +28,13 @@ Some tickets skip steps (e.g., no parts needed = skip WAITING_ON_PARTS). All pat
 
 **Purpose:** Collect basic information about the customer and device.
 
-<img src="/images/screenshots/light/desktop/intake.png" alt="RepairOps Intake form for new repair check-in" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/intake.png" alt="RepairOps Intake form for new repair check-in" class="screenshot dark-only" loading="lazy" />
-
 ### Starting the Intake
 
 1. Click **"New Ticket"** (or **"Check In"** on the dashboard)
 2. You'll see the **Intake Form**
+
+<img src="/images/screenshots/light/desktop/intake.png" alt="RepairOps Intake form for new repair check-in" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/intake.png" alt="RepairOps Intake form for new repair check-in" class="screenshot dark-only" loading="lazy" />
 
 ### Fill in Customer Info
 
@@ -129,9 +129,6 @@ Usually a **Manager**, but the **Owner** can do it too. This prevents every cust
 
 **Purpose:** Investigate the device, identify the problem, and document findings.
 
-<img src="/images/screenshots/light/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot dark-only" loading="lazy" />
-
 ### Technician's Perspective
 
 1. **My Work** dashboard shows "New assignment: iPhone Screen Repair"
@@ -141,6 +138,9 @@ Usually a **Manager**, but the **Owner** can do it too. This prevents every cust
 ### Run Diagnostic Checklist
 
 1. Click **"Start Diagnostics"**
+
+<img src="/images/screenshots/light/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/diagnostics.png" alt="RepairOps Diagnostics view with checklist and evidence upload" class="screenshot dark-only" loading="lazy" />
 2. RepairOps presents a role-specific checklist:
    - **Power Test** — Does it turn on?
    - **Screen Test** — Does it display correctly?
@@ -188,9 +188,6 @@ Evidence photos strengthen your quote and prove the work needed.
 
 **Purpose:** Create a detailed quote and send it to the customer for approval.
 
-<img src="/images/screenshots/light/desktop/quote-builder.png" alt="RepairOps Quote Builder with parts, labor, and total calculation" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/quote-builder.png" alt="RepairOps Quote Builder with parts, labor, and total calculation" class="screenshot dark-only" loading="lazy" />
-
 ### Build the Quote
 
 1. On the ticket, click **"Build Quote"**
@@ -198,6 +195,9 @@ Evidence photos strengthen your quote and prove the work needed.
    - **Labor Line Items** — Hours × rate
    - **Parts Line Items** — What's needed
    - **Diagnostics** — If charged (some shops include free diagnostics)
+
+<img src="/images/screenshots/light/desktop/quote-builder.png" alt="RepairOps Quote Builder with parts, labor, and total calculation" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/quote-builder.png" alt="RepairOps Quote Builder with parts, labor, and total calculation" class="screenshot dark-only" loading="lazy" />
 
 ### Add Parts
 
@@ -346,9 +346,6 @@ When the repair is done:
 
 **Purpose:** Verify the repair meets quality standards before handoff to customer.
 
-<img src="/images/screenshots/light/desktop/qc-review.png" alt="RepairOps QC Review checklist and pass/fail controls" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/qc-review.png" alt="RepairOps QC Review checklist and pass/fail controls" class="screenshot dark-only" loading="lazy" />
-
 ### QC Specialist's Role
 
 1. QC specialist sees the ticket in the **QC_REVIEW** column
@@ -362,6 +359,9 @@ When the repair is done:
 ### Run QC Checklist
 
 1. Click **"Start QC Review"**
+
+<img src="/images/screenshots/light/desktop/qc-review.png" alt="RepairOps QC Review checklist and pass/fail controls" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/qc-review.png" alt="RepairOps QC Review checklist and pass/fail controls" class="screenshot dark-only" loading="lazy" />
 2. RepairOps presents the QC checklist (role-specific):
    - **Power Test** — Does it turn on reliably?
    - **Screen Test** — Full display, no dead pixels or discoloration?
@@ -397,9 +397,6 @@ When the repair is done:
 
 **Purpose:** Prepare for customer to collect the device.
 
-<img src="/images/screenshots/light/desktop/pickup.png" alt="RepairOps Pickup screen with payment and signature capture" class="screenshot light-only" loading="lazy" />
-<img src="/images/screenshots/dark/desktop/pickup.png" alt="RepairOps Pickup screen with payment and signature capture" class="screenshot dark-only" loading="lazy" />
-
 ### What Happens Automatically
 
 1. Device is marked **READY_FOR_PICKUP**
@@ -411,6 +408,9 @@ When the repair is done:
 
 1. Front desk or manager clicks on the ticket
 2. Click **"Process Pickup"**
+
+<img src="/images/screenshots/light/desktop/pickup.png" alt="RepairOps Pickup screen with payment and signature capture" class="screenshot light-only" loading="lazy" />
+<img src="/images/screenshots/dark/desktop/pickup.png" alt="RepairOps Pickup screen with payment and signature capture" class="screenshot dark-only" loading="lazy" />
 3. Fill in:
    - **Payment Method** — Cash, card, check, or invoice link
    - **Amount Received** — Confirm total paid
