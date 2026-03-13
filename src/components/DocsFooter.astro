@@ -1,0 +1,26 @@
+---
+import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
+---
+
+<DefaultFooter>
+  <p class="main-site-link">
+    <a href="https://repairops.app" rel="noopener noreferrer">Back to Main Site</a>
+  </p>
+</DefaultFooter>
+
+<style>
+  .main-site-link {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .main-site-link a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .main-site-link a:hover {
+    text-decoration: underline;
+  }
+</style>

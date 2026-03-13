@@ -58,6 +58,7 @@ export default defineConfig({
             { label: 'Quick Start Guide', slug: 'getting-started/quick-start' },
             { label: 'Your First Ticket', slug: 'getting-started/your-first-ticket' },
             { label: 'Team Setup & Roles', slug: 'getting-started/team-setup' },
+            { label: 'Migrate from PCRT', slug: 'getting-started/pcrt-migration-guide' },
             { label: 'Plans & Billing', slug: 'getting-started/plans-and-billing' },
           ],
         },
@@ -146,6 +147,9 @@ export default defineConfig({
       lastUpdated: true,
       pagination: true,
       favicon: '/favicon.svg',
+      components: {
+        Footer: './src/components/DocsFooter.astro',
+      },
     }),
   ],
 });
