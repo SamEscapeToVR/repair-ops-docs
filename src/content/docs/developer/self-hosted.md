@@ -30,9 +30,9 @@ The delivered `docker-compose.yml` runs a single self-contained stack:
 | `storage` | Supabase Storage — photos, attachments, and signed URLs |
 | `migrate` | One-shot: applies all database migrations, then exits |
 | `kong` | API gateway in front of the Supabase services |
-| `web` | The Next.js app (standalone `server.js`), published on `127.0.0.1:3100` |
+| `web` | The Next.js app (Next.js standalone server) |
 | `worker` | The pg-boss background worker (cron + event jobs) |
-| `caddy` | Reverse proxy with automatic TLS, published on `127.0.0.1:3080` |
+| `caddy` | Reverse proxy with automatic TLS |
 | `backup` | Scheduled `pg_dump` backups with NAS / S3-compatible offsite hooks |
 | `backup-verify` | On-demand backup integrity check (tools profile) |
 
@@ -87,7 +87,7 @@ deployment:
 | `POSTGRES_PASSWORD` | Database superuser password |
 | `JWT_SECRET` | Supabase JWT signing secret |
 | `ANON_KEY` | Supabase anon (public) key, signed with `JWT_SECRET` |
-| `SERVICE_ROLE_KEY` | Supabase service-role key (server-side, bypasses RLS) |
+| `SERVICE_ROLE_KEY` | Supabase service-role key (server-side admin key — keep secret) |
 | `REALTIME_SECRET_KEY_BASE` | Secret for the Realtime service |
 | `SITE_URL` / `API_EXTERNAL_URL` | Public URL of your deployment |
 | `NEXT_PUBLIC_SUPABASE_URL` | Public Supabase gateway URL (Kong) |
@@ -98,28 +98,24 @@ deployment:
 
 | Variable | When to set |
 |----------|-------------|
-| `RATE_LIMIT_SINGLE_INSTANCE=true` | Single-container deployment with no Upstash Redis — uses the in-memory rate limiter instead of failing closed. **Never set this when running multiple web replicas.** |
+| `RATE_LIMIT_SINGLE_INSTANCE=true` | Single-container deployment with no Upstash Redis — uses the in-memory rate limiter. **Never set this when running multiple web replicas.** |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Multi-instance deployments that need a shared rate-limit backend |
-| `ALLOW_PRIVATE_OLLAMA=true` | Allow the AI gateway to reach a private-network/loopback Ollama host (SSRF guard escape hatch) |
-| `ALLOW_PRIVATE_WEBHOOKS=true` | Allow outbound webhook/Slack delivery to private targets |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_*` | Only if you run billing/checkout on the self-hosted instance |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_AI_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `OLLAMA_BASE_URL` | Managed AI providers you intend to use (BYOK keys are stored per-org, not as env) |
 | `EMAIL_PROVIDER` (+ Postmark/SendGrid/SMTP creds), `TWILIO_AUTH_TOKEN`, `RINGCENTRAL_WEBHOOK_SECRET` | Email/SMS/voice features |
 
-:::caution
-Several settings **fail closed** in production when unset: `STRIPE_WEBHOOK_SECRET`,
-`TWILIO_AUTH_TOKEN`, and `RINGCENTRAL_WEBHOOK_SECRET` make their webhooks return `500`; missing
-Upstash credentials cause critical rate-limit checks to deny (unless `RATE_LIMIT_SINGLE_INSTANCE` is
-set); `REPAIROPS_DATA_KEY_B64` throws on any secret operation; `API_CORS_ORIGINS` denies all
-cross-origin API access when empty. Leave `ALLOW_PRIVATE_OLLAMA` and `ALLOW_PRIVATE_WEBHOOKS` unset
-unless you specifically need them.
+:::note
+Set every security-critical secret before going live. Some integrations are disabled and some
+endpoints are rejected if their required secret is missing, so the deployment is secure by default.
+The `.env.production.example` lists each setting; the delivery package's operator guide covers
+advanced networking options.
 :::
 
 ## TLS & Reverse Proxy
 
 TLS is handled by the bundled **Caddy** service, which provisions and renews certificates
 automatically — you do not write your own Nginx config. Point your domain's DNS at the server and
-ensure ports 80/443 are reachable; Caddy proxies to the web container on `127.0.0.1:3100`.
+ensure ports 80/443 are reachable; Caddy proxies to the web container internally.
 
 ## Database & Migrations
 
@@ -151,9 +147,9 @@ Run a restore rehearsal periodically — see the backup/restore support guide in
 ## Health & Monitoring
 
 - **Health endpoint:** `GET /api/health` (used by the container healthcheck).
-- **Guardian heartbeat:** supported self-hosted plans report signed health telemetry back to
-  RepairOps via the Guardian agent (`REPAIROPS_GUARDIAN_*` settings) so support can monitor your
-  instance. This is opt-in/disabled by default for self-managed deployments.
+- **Optional health reporting:** supported self-hosted plans include an optional health-reporting
+  agent (disabled by default) so your support contact can help monitor uptime. See your delivery
+  package's operator guide for setup.
 
 ## Updating
 
@@ -173,7 +169,7 @@ rollback flows, including running the one-shot `migrate` container for any new m
 - [ ] Restrict the firewall to ports 80/443 (the app and Supabase services bind to localhost behind Caddy)
 - [ ] Confirm TLS is issued by Caddy and HTTP redirects to HTTPS
 - [ ] Configure and verify automated backups (and offsite copies)
-- [ ] Keep `ALLOW_PRIVATE_OLLAMA` / `ALLOW_PRIVATE_WEBHOOKS` unset unless required
+- [ ] Keep the secure-by-default network settings unless your operator guide says otherwise
 - [ ] Keep Docker and the host OS patched
 - [ ] Rotate `REPAIROPS_DATA_KEY_B64` via the key-ring variables when needed
 

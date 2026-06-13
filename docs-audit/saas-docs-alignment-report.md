@@ -35,6 +35,13 @@ output was verified.
 fabricated API contract a developer would code against, and a wrong API tier gate (would have told
 Business customers the API was unavailable to them).
 
+**Public-docs exposure review (follow-up pass):** the developer pages were also reviewed so they
+don't expose internal mechanisms. Removed the "no plugin sandbox" disclosure, the "OWNER-equivalent
+API key" detail, an internal DB column name, the SSRF escape-hatch flags, the fail-closed env
+enumeration, internal localhost ports, and the health-telemetry specifics; and trimmed the public
+webhook event list to the four that actually deliver. Confirmed there are **no** real
+secrets/tokens or internal-only endpoints anywhere in the published docs.
+
 ---
 
 ## 2. Repos Inspected
@@ -197,6 +204,13 @@ Webhooks: 10 subscribable event types, but **only the 4 `ticket.*` events are cu
    a published API-reference path — consider a single OpenAPI source).
 5. The SaaS repo's own counts are stale too (`CLAUDE.md`/`BUILD_PLAN.md` say 148/60 migrations, 20
    worker jobs; real: 164 migrations, 36 job files, 52 cron schedules) — refresh those separately.
+6. **Webhook event delivery (pre-prod, tracked):** the `WebhookEventType` enum accepts 10 events but
+   only the four `ticket.*` events are delivered today. The public API reference now documents only
+   those four. **Before production**, either implement delivery for the remaining six
+   (`customer.created`/`customer.updated`, `quote.approved`/`quote.rejected`, `payment.received`,
+   `inventory.low_stock`) or remove them from the subscribable enum
+   (`packages/shared/src/api-keys.ts`). The other six currently route to internal buses, not REST
+   webhook endpoints.
 
 ---
 

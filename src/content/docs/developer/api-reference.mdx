@@ -554,23 +554,16 @@ Subscribe an endpoint to one or more event types when you register it.
 
 ### Event Types
 
-| Event | Delivery status |
-|-------|-----------------|
-| `ticket.created` | ✅ Delivered |
-| `ticket.updated` | ✅ Delivered |
-| `ticket.transitioned` | ✅ Delivered |
-| `ticket.voided` | ✅ Delivered (alongside `ticket.transitioned` when a ticket is voided) |
-| `customer.created` | ⏳ Reserved — accepted on subscription but not yet delivered to REST endpoints |
-| `customer.updated` | ⏳ Reserved |
-| `quote.approved` | ⏳ Reserved |
-| `quote.rejected` | ⏳ Reserved |
-| `payment.received` | ⏳ Reserved |
-| `inventory.low_stock` | ⏳ Reserved |
+Subscribe an endpoint to one or more of the supported ticket events:
 
-:::caution
-You can subscribe an endpoint to any of the ten event types, but only the four `ticket.*` events
-are currently delivered to REST webhook endpoints. The other six are reserved for a future release.
-:::
+| Event | Description |
+|-------|-------------|
+| `ticket.created` | A ticket was created |
+| `ticket.updated` | A ticket's fields were updated |
+| `ticket.transitioned` | A ticket moved to a new status |
+| `ticket.voided` | A ticket was voided (sent alongside `ticket.transitioned`) |
+
+Additional event types may be added in future releases.
 
 ### Payload
 
@@ -610,8 +603,8 @@ Verify by recomputing `HMAC_SHA256(secret, rawBody)` and comparing against `X-Re
   timeout per attempt.
 - Up to **3 attempts** with backoff delays of **5s, 30s, then 2 minutes**. Any `2xx` is a success;
   after 3 failures the delivery is marked failed.
-- Endpoints must resolve to public hosts — private/loopback targets are blocked (SSRF guard) and
-  fail permanently without retry.
+- Endpoints must be publicly reachable — private or loopback targets are rejected and fail
+  permanently without retry.
 - Implement idempotency on your side using the delivery `id`, and respond `2xx` quickly.
 
 ## API Keys & Lifecycle
