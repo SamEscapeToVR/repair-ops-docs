@@ -5,195 +5,159 @@ sidebar:
   order: 1
 ---
 
-RepairOps provides APIs and plugin systems for developers and integrators. Build custom integrations, extend functionality with plugins, and deploy RepairOps on your own infrastructure.
+RepairOps provides a REST API and a plugin system for developers and integrators. Read and create
+core records, subscribe to webhooks, extend the platform with marketplace plugins, and — for
+Enterprise customers — run RepairOps on your own infrastructure.
 
 ## Core Developer Topics
 
 ### [REST API Reference](/developer/api-reference/)
-Complete API documentation for Enterprise tier. Access tickets, customers, inventory, KPIs, and more. Manage API keys, configure webhooks, and integrate with your systems.
+Read and create tickets, customers, and devices, look up inventory, pull KPI/usage data, manage
+outbound webhooks, and submit plugins. Manage API keys in **Settings → API Keys**.
 
-**Available on:** Enterprise tier only.
+**Available on:** Business and Enterprise tiers.
 
 ### [Plugin SDK](/developer/plugin-sdk/)
-Build custom plugins to extend RepairOps. Learn the manifest specification, capabilities system, event handling, and plugin testing. Submit plugins to the marketplace.
+Build custom plugins that declare capabilities (email, SMS, payments, AI, voice, and more) and
+submit them to the marketplace for review. Capability types and the manifest schema live in
+`@repairops/plugin-sdk`.
 
-**Available on:** All tiers (submit to marketplace on Pro/Enterprise).
+**Available on:** Marketplace install requires Pro and above.
 
 ### [Self-Hosted Deployment](/developer/self-hosted/)
-Deploy RepairOps on your own infrastructure with Docker Compose. Set up Postgres, Supabase, Redis, and the RepairOps worker. Configure backups, monitoring, and SSL.
+Run the full RepairOps stack — web, worker, self-hosted Supabase, and Caddy — with Docker Compose.
 
-**Available on:** Enterprise tier only.
+**Available on:** Enterprise / self-hosted packages.
 
 ## API Quickstart
 
 Get started with the REST API in 3 steps:
 
 ### 1. Generate an API Key
-**Settings** → **API Keys** → **Generate New Key** → Select scope (Read/Write/Admin)
+**Settings → API Keys → Generate New Key** (organization OWNER only). Choose a scope —
+`read`, `write`, or `admin` (scopes are hierarchical). Copy the key (`ro_live_...`) immediately; it
+is shown only once.
 
 <img src="/images/screenshots/light/desktop/settings-api-keys.png" alt="RepairOps API Key generation and management interface" class="screenshot light-only" loading="lazy" />
 <img src="/images/screenshots/dark/desktop/settings-api-keys.png" alt="RepairOps API Key generation and management interface" class="screenshot dark-only" loading="lazy" />
 
 ### 2. Make an API Call
 ```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.repairops.io/v1/tickets
+curl -H "Authorization: Bearer ro_live_YOUR_API_KEY" \
+  https://app.repairops.app/api/v1/tickets
 ```
 
 ### 3. Read the API Reference
-See [REST API Reference](/developer/api-reference/) for all endpoints.
+See the [REST API Reference](/developer/api-reference/) for every endpoint, the response envelope,
+error codes, pagination, and the webhook system.
 
 ## Plugin Quickstart
 
-Build your first plugin in 5 minutes:
+Plugins are TypeScript packages described by a `manifest.json`. The capability types and manifest
+schema are exported from `@repairops/plugin-sdk`. A minimal manifest:
 
-### 1. Set Up Development Environment
-```bash
-npm install -g @repairops/plugin-cli
-plugin-cli init my-plugin
-cd my-plugin
-npm install
-```
-
-### 2. Create a Simple Plugin
-Edit `manifest.json`:
 ```json
 {
+  "id": "com.example.my-plugin",
   "name": "My First Plugin",
   "version": "1.0.0",
-  "capabilities": ["label_printer"],
-  "handler": "index.ts"
+  "vendor": "Your Company",
+  "description": "A simple RepairOps plugin",
+  "capabilities": ["send_email"]
 }
 ```
 
-### 3. Test Locally
+Submit a packaged plugin for review with an `admin`-scoped API key:
+
 ```bash
-plugin-cli dev
+curl -X POST "https://app.repairops.app/api/v1/plugins/submit" \
+  -H "Authorization: Bearer ro_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "manifest": { ... }, "bundle_url": "https://example.com/my-plugin.zip" }'
 ```
 
-### 4. Submit to Marketplace
-```bash
-plugin-cli publish
-```
-
-See [Plugin SDK](/developer/plugin-sdk/) for full details.
+See the [Plugin SDK](/developer/plugin-sdk/) for the full manifest spec, the complete capability
+list, and the submission/install flow.
 
 ## Self-Hosted Quickstart
 
-Deploy RepairOps locally with Docker Compose:
+The self-hosted stack ships as a Docker Compose project (web + worker + self-hosted Supabase
+services + Caddy reverse proxy). After provisioning your `.env` (Postgres password, JWT/anon/
+service-role keys, `REPAIROPS_DATA_KEY_B64`, `SITE_URL`):
 
-### 1. Clone Configuration
 ```bash
-git clone https://github.com/repairops/docker-compose.git
-cd docker-compose
+docker compose up -d
 ```
 
-### 2. Configure Environment
-Create `.env` file with database credentials, API keys, etc.
-
-### 3. Start Services
-```bash
-docker-compose up -d
-```
-
-### 4. Access RepairOps
-Open `http://localhost:3000` in your browser.
-
-See [Self-Hosted Deployment](/developer/self-hosted/) for production setup.
+See [Self-Hosted Deployment](/developer/self-hosted/) for the full service list, environment
+reference, and bootstrap order.
 
 ## Common Integration Patterns
 
-### Listen to Repair Ticket Events
+### React to Ticket Events
 
-Use webhooks to react when ticket status changes:
+Register a webhook endpoint (`admin` scope) and subscribe to `ticket.*` events. Each delivery is
+signed with HMAC-SHA256 in `X-RepairOps-Signature`:
 
-```javascript
-// When ticket moves to "In Repair"
-POST /webhooks/ticket-events
+```json
 {
+  "id": "delivery-uuid",
   "event": "ticket.transitioned",
-  "ticket_id": "abc-123",
-  "from_status": "APPROVED",
-  "to_status": "IN_REPAIR",
-  "timestamp": "2026-03-09T15:30:00Z"
+  "timestamp": "2026-06-12T15:30:00Z",
+  "data": {
+    "id": "ticket-uuid",
+    "ticket_code": "T-001234",
+    "status": "IN_REPAIR",
+    "previous_status": "APPROVED"
+  }
 }
 ```
 
 ### Export Tickets for Analysis
 
-Get all tickets for a date range:
-
 ```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "https://api.repairops.io/v1/tickets?created_after=2026-01-01&created_before=2026-02-01"
+curl -H "Authorization: Bearer ro_live_YOUR_API_KEY" \
+  "https://app.repairops.app/api/v1/tickets?per_page=100&page=1"
 ```
 
 ### Create Repair Tickets Programmatically
 
-Integrate your website booking system with RepairOps:
+Tickets require existing `customer_id` and `device_id` records — create the customer and device
+first, then the ticket:
 
 ```bash
 curl -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer ro_live_YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "customer_email": "john@example.com",
-    "device_identifier": "iPhone 14 Pro",
+    "shop_id": "shop-uuid",
+    "customer_id": "customer-uuid",
+    "device_id": "device-uuid",
     "issue_description": "Cracked screen"
   }' \
-  https://api.repairops.io/v1/tickets
+  https://app.repairops.app/api/v1/tickets
 ```
-
-## Help & Support
-
-- **[Help Center](https://repairops.io/help)** — FAQs and troubleshooting
-- **[Community Forum](https://community.repairops.io)** — Discuss plugins and integrations
-- **[Support](https://repairops.io/support)** — Contact our support team
-- **GitHub Issues** — Report bugs or request features
-
-## SDK & Libraries
-
-### JavaScript/TypeScript SDK
-
-```bash
-npm install @repairops/sdk
-```
-
-```typescript
-import { RepairOpsClient } from '@repairops/sdk'
-
-const client = new RepairOpsClient({
-  apiKey: process.env.REPAIROPS_API_KEY
-})
-
-const tickets = await client.tickets.list()
-```
-
-### REST API (No SDK)
-
-All features are accessible via REST API with standard HTTP methods (GET, POST, PATCH, DELETE).
-
-### Webhook Events
-
-Subscribe to real-time ticket events, payment notifications, and more.
-
-## Rate Limits
-
-- **Read endpoints:** 1,000 requests/hour
-- **Write endpoints:** 100 requests/hour
-- **Admin endpoints:** 10 requests/hour
-
-Rate limits are per API key. Exceeding limits returns `429 Too Many Requests`.
 
 ## Authentication
 
-All API requests require Bearer token authentication:
+All API requests use bearer **API key** authentication:
 
 ```bash
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer ro_live_YOUR_API_KEY
 ```
 
-API keys can be created and rotated in **Settings** → **API Keys**.
+Keys are created and revoked in **Settings → API Keys** (OWNER only). Only a hash of the key is
+stored; the plaintext is shown once.
+
+## Rate Limits
+
+Rate limits are enforced **per API key** on a sliding 60-second window:
+
+- **100 requests / minute** by default (Enterprise keys: **1,000 / minute**).
+- Exceeding the limit returns `429 RATE_LIMITED` with a `Retry-After: 60` header.
+
+Separately, each request consumes one unit of the monthly `api_calls` meter (Business 50,000 /
+Enterprise 500,000); exhausting it returns `402`.
 
 ## Architecture Overview
 
@@ -201,82 +165,68 @@ API keys can be created and rotated in **Settings** → **API Keys**.
 ┌──────────────────────────────────────┐
 │  Your Application                     │
 │  (Website, Kiosk, CRM, etc.)         │
-└─────────────┬──────────────────────┘
+└─────────────┬────────────────────────┘
+              │ REST API (Bearer ro_live_…)
               │
-              │ REST API / GraphQL
+┌─────────────v────────────────────────┐
+│  RepairOps API (Next.js /api/v1)     │
+│  - API-key auth + scope checks       │
+│  - Tier gate (Business+)             │
+│  - Metering + per-key rate limiting  │
+│  - Tenant scoping by org_id          │
+└─────────────┬────────────────────────┘
               │
-┌─────────────v──────────────────────┐
-│  RepairOps API Gateway              │
-│  - Auth & API key validation        │
-│  - Rate limiting                    │
-│  - Request logging                  │
-└─────────────┬──────────────────────┘
+┌─────────────v────────────────────────┐
+│  RepairOps Backend                   │
+│  - Ticket state machine              │
+│  - Outbox + webhook delivery worker  │
+│  - Multi-tenant isolation (RLS)      │
+└─────────────┬────────────────────────┘
               │
-┌─────────────v──────────────────────┐
-│  RepairOps Backend                  │
-│  - Business logic                   │
-│  - Ticket state machine             │
-│  - Multi-tenant isolation (RLS)     │
-└─────────────┬──────────────────────┘
-              │
-┌─────────────v──────────────────────┐
-│  Postgres Database                  │
-│  - Tickets, customers, inventory    │
-│  - Encrypted at rest                │
-│  - Automated daily backups          │
-└─────────────────────────────────────┘
+┌─────────────v────────────────────────┐
+│  Postgres (Supabase)                 │
+│  - Tickets, customers, inventory     │
+│  - Row-level security                │
+└──────────────────────────────────────┘
 ```
 
 ## Data Model Overview
 
 ### Core Entities
 
-- **Organizations** — Your repair shop
-- **Shops** — Physical locations
-- **Tickets** — Repair jobs
-- **Customers** — Customer profiles
-- **Inventory** — Parts and materials
-- **Invoices** — Billing records
+- **Organizations** — your tenant
+- **Shops** — physical locations
+- **Customers** — customer profiles
+- **Devices** — customer-owned devices brought in for repair
+- **Tickets** — repair work orders
+- **Inventory** — parts and materials
+- **Invoices** — billing records
 
 ### Relationships
 
 ```
 Organization
 ├── Shops
-│   ├── Tickets
-│   │   ├── Customer
-│   │   ├── Technician (User)
-│   │   └── Invoices
-│   ├── Inventory
-│   └── POS Transactions
+│   ├── Tickets ──► Customer, Device, Technician (User), Invoices
+│   └── Inventory
 └── Team Members (Users)
 ```
 
 ## Tier Requirements
 
-| Feature | Starter | Pro | Enterprise |
-|---------|:-------:|:---:|:----------:|
-| REST API | — | — | ✓ |
-| Plugin SDK | ✓ | ✓ | ✓ |
-| Plugin Marketplace | ✓ | ✓ | ✓ |
-| Webhooks | — | — | ✓ |
-| Self-Hosted | — | — | ✓ |
-| Rate limits | — | — | Custom |
+| Feature | Starter | Pro | Business | Enterprise |
+|---------|:-------:|:---:|:--------:|:----------:|
+| REST API + API keys | — | — | ✓ | ✓ |
+| Outbound webhooks | — | — | ✓ | ✓ |
+| Plugin marketplace | — | ✓ | ✓ | ✓ |
+| Self-hosted deployment | — | — | Optional package | ✓ |
 
 ## Getting Help
 
-**API documentation unclear?**
-- Check [API Reference](/developer/api-reference/)
-- Browse [community examples](https://github.com/repairops/examples)
-
-**Plugin development help?**
-- Read [Plugin SDK](/developer/plugin-sdk/)
-- Check sample plugins on GitHub
-
-**Deployment questions?**
-- See [Self-Hosted Guide](/developer/self-hosted/)
-- Contact support for Enterprise assistance
+- **Documentation:** [docs.repairops.app](https://docs.repairops.app)
+- **Source / issues:** [github.com/SamEscapeToVR/repair-ops-saas](https://github.com/SamEscapeToVR/repair-ops-saas)
 
 ---
 
-Ready to integrate? Start with [REST API Reference](/developer/api-reference/) or [Plugin SDK](/developer/plugin-sdk/).
+Ready to integrate? Start with the [REST API Reference](/developer/api-reference/) or the
+[Plugin SDK](/developer/plugin-sdk/).

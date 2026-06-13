@@ -8,7 +8,7 @@ sidebar:
 import TierBadge from '../../../components/TierBadge.astro';
 import ThemedImage from '../../../components/ThemedImage.astro';
 
-RepairOps provides a comprehensive suite of tools for repair shop management across all service tiers. This section covers all features available on Starter, Pro, and Enterprise plans.
+RepairOps provides a comprehensive suite of tools for repair shop management across all service tiers. This section covers features available on the Starter, Pro, Business, and Enterprise plans.
 
 <ThemedImage light="/images/screenshots/light/desktop/dashboard.png" dark="/images/screenshots/dark/desktop/dashboard.png" alt="RepairOps Dashboard showing KPIs and recent tickets" />
 
@@ -41,9 +41,17 @@ Extend RepairOps with free and premium plugins. Connect label printers, booking 
 ### [iFixit Repair Guides](/features/ifixit-guides/)
 Embed step-by-step repair guides from iFixit directly in your workflow. Search millions of guides, attach them to tickets, and let AI suggest relevant guides automatically.
 
+## Business Features <TierBadge tier="business" />
+
+Business adds light multi-location operations, the [REST API](/developer/api-reference/) with API keys
+and outbound webhooks, Voice Copilot / RingCentral integration, advanced customer export, and AI
+manager insights (with an AI add-on). A self-hosted deployment package is also available from Business.
+
 ## Enterprise Features <TierBadge tier="enterprise" />
 
-Enterprise-only capabilities include white-label branding, REST API access, SSO/SAML authentication, and self-hosted AI via Ollama. See [Admin Documentation](/admin/) for configuration details.
+Enterprise-only capabilities include white-label branding, SSO/SAML authentication, self-hosted AI via
+Ollama, AI fallback chains, and the AI audit trail with compliance exports. See
+[Admin Documentation](/admin/) for configuration details.
 
 ## Navigation
 

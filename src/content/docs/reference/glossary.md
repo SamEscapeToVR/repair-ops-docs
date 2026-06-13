@@ -9,7 +9,9 @@ A reference of terms, abbreviations, and concepts used throughout RepairOps and 
 
 ## Ticket Statuses
 
-RepairOps tickets move through 13 statuses. See the [State Machine reference](/reference/state-machine/) for the full transition graph and gate requirements.
+RepairOps tickets move through 14 statuses, ending in one of three terminal states (CLOSED,
+UNCLAIMED, or VOIDED). See the [State Machine reference](/reference/state-machine/) for the full
+transition graph and gate requirements.
 
 | Status | Definition |
 |--------|-----------|
@@ -25,7 +27,8 @@ RepairOps tickets move through 13 statuses. See the [State Machine reference](/r
 | **READY_FOR_PICKUP** | The repair has passed QC and the device is ready for the customer to collect. |
 | **PICKED_UP** | The customer has collected their device. Payment processing and invoice generation occur at this stage. |
 | **CLOSED** | Terminal state. The ticket is fully complete — device returned, payment received, invoice generated. |
-| **VOIDED** | Terminal state. The ticket was cancelled. A ticket can be voided from any non-terminal status. |
+| **UNCLAIMED** | Terminal state. Owner-only cleanup for ready work that the customer never collected. Not a paid close. |
+| **VOIDED** | Terminal state. The ticket was cancelled. A ticket can be voided from any non-terminal status except PICKED_UP. |
 
 ## Roles
 
@@ -45,7 +48,7 @@ RepairOps defines 7 roles for team members. See the [Permissions reference](/ref
 
 ### A
 
-**AI Gateway** — The RepairOps subsystem that routes AI requests to configured providers (OpenAI, Anthropic, Google). Supports both BYOK (bring your own key) and managed credits. Powers intake parsing, diagnostics help, voice-to-text, and more.
+**AI Gateway** — The RepairOps subsystem that routes AI requests to configured providers (OpenAI, Anthropic, Google, Groq, Mistral, and self-hosted Ollama). Supports both BYOK (bring your own key) and managed credits. Powers intake parsing, diagnostics help, voice-to-text, and more.
 
 **Approval Link** — A unique URL sent to a customer that allows them to view a quote and approve or decline it without logging in. Links are scoped to a single ticket and expire after the quote is updated.
 
@@ -123,7 +126,7 @@ RepairOps defines 7 roles for team members. See the [Permissions reference](/ref
 
 **Service Catalog** — A configurable list of standard repair services offered by a shop (e.g., "Screen Replacement — iPhone 14", "Battery Replacement — MacBook Pro"). Catalog items have preset pricing and estimated durations.
 
-**Shop** — A physical repair location belonging to an organization. Starter plans include 1 shop, Pro plans up to 5, and Enterprise plans unlimited. Each shop has its own inventory, displays, and ticket queue.
+**Shop** — A physical repair location belonging to an organization. Starter and Pro plans include 1 location, Business includes 2, and Enterprise defaults to 100 (overridable by contract). Each shop has its own inventory, displays, and ticket queue.
 
 **Shop Floor Display** — A wall-mounted or countertop screen showing real-time ticket status for customers waiting in the shop. Authenticated via access token (no user session required).
 
@@ -143,4 +146,4 @@ RepairOps defines 7 roles for team members. See the [Permissions reference](/ref
 
 **Work Order** — A synonym for ticket. Some repair industry terminology uses "work order" to describe a repair job. In RepairOps, these terms are interchangeable.
 
-**Webhook** — An HTTP callback triggered when events occur in RepairOps (ticket created, status changed, payment processed). Available to Enterprise customers via the REST API.
+**Webhook** — An HMAC-signed HTTP callback triggered when ticket events occur in RepairOps (ticket created, updated, transitioned, voided). Available on Business and Enterprise tiers via the REST API.

@@ -5,584 +5,250 @@ sidebar:
   order: 3
 ---
 
-Build custom plugins to extend RepairOps with new capabilities. Learn the manifest specification, event system, UI integration, and submission process.
+Build custom plugins that extend RepairOps with new capabilities — sending email/SMS, processing
+payments, providing AI, syncing accounting, logging voice calls, and more. This page documents the
+plugin manifest, the capability system, the authoring model, and the submission flow.
 
 <img src="/images/screenshots/light/desktop/marketplace.png" alt="RepairOps Plugin Marketplace for distributing custom plugins" class="screenshot light-only" loading="lazy" />
 <img src="/images/screenshots/dark/desktop/marketplace.png" alt="RepairOps Plugin Marketplace for distributing custom plugins" class="screenshot dark-only" loading="lazy" />
 
+:::note
+The plugin SDK (`@repairops/plugin-sdk`) is an early-stage package (v0.0.1). The manifest schema,
+capability types, and base classes documented here are the canonical contract. There is no
+published CLI or hosted developer portal yet — plugins are submitted through the REST API and
+installed from the in-app marketplace.
+:::
+
 ## What Are Plugins?
 
-Plugins are modular TypeScript/JavaScript packages that add features to RepairOps:
-- **Connect external services** (SMS, email, payments, CRM)
-- **Add workflows** (booking, POS, time tracking)
-- **Extend data models** (custom fields, new tables)
-- **Integrate hardware** (label printers, displays)
-- **Provide AI capabilities** (custom task types)
+A plugin is a package described by a **manifest** that declares one or more **capabilities**.
+RepairOps routes work to installed plugins based on the capabilities they provide — for example, a
+plugin that declares `send_email` can be selected as the org's email provider. Plugins are
+installed per-organization and shared across the team.
 
-Plugins are installed per-organization and shared across all team members.
+## The SDK
 
-## Getting Started
+Plugin types and helpers live in `@repairops/plugin-sdk`, which re-exports the canonical schemas
+from `@repairops/shared`. The package exports:
 
-### Installation
-
-Install the plugin CLI:
-
-```bash
-npm install -g @repairops/plugin-cli
-```
-
-### Create a New Plugin
-
-```bash
-plugin-cli init my-plugin
-cd my-plugin
-npm install
-```
-
-Directory structure:
-
-```
-my-plugin/
-├── manifest.json          # Plugin metadata & configuration
-├── src/
-│   ├── index.ts          # Main plugin handler
-│   ├── handlers/         # Event handlers
-│   └── components/       # React UI components (optional)
-├── tests/
-│   └── plugin.test.ts    # Plugin tests
-├── package.json
-└── README.md
-```
+- **Base classes** — `BasePlugin` (abstract `onEvent()`, `getCapabilities()`), plus specialized
+  bases `AIProviderPlugin`, `PaymentPlugin`, and `CommunicationPlugin` that pre-wire common
+  capabilities.
+- **`validateManifest()`** — validates a manifest against the schema and rules below.
+- **Test helpers** — `createTestContext`, `createTestEvent`, `assertCapability`, `createMockLogger`.
+- **Types** — `PluginManifest`, `PluginCapability`, `PluginCategory`, `PluginContext`,
+  `UIExtension`, and the capability result types.
 
 ## Manifest Specification
 
-The `manifest.json` file defines your plugin's metadata, permissions, and capabilities.
+The manifest is a static object validated by `PluginManifestSchema`.
 
-### Minimal Manifest
+### Example
 
 ```json
 {
-  "name": "My First Plugin",
+  "id": "acme-email",
+  "name": "Acme Email",
+  "description": "Send transactional email from repair tickets via Acme.",
   "version": "1.0.0",
-  "author": "Your Name",
-  "description": "A simple RepairOps plugin",
-  "capabilities": [],
-  "handler": "src/index.ts"
-}
-```
-
-### Full Manifest Example
-
-```json
-{
-  "id": "com.example.my-plugin",
-  "name": "Email Integration Plugin",
-  "version": "2.1.0",
-  "author": "Your Company",
-  "license": "MIT",
-  "description": "Send custom emails from repair tickets",
-  "icon": "src/assets/icon.png",
-  "homepage": "https://github.com/yourname/my-plugin",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourname/my-plugin"
-  },
-  "capabilities": ["email_provider"],
-  "permissions": [
-    "read:tickets",
-    "read:customers",
-    "write:communications"
-  ],
-  "tier_gates": {
-    "core": "free",
-    "advanced": "pro"
-  },
-  "config_schema": {
-    "type": "object",
-    "properties": {
-      "api_key": {
-        "type": "string",
-        "title": "API Key",
-        "description": "Your email service API key"
-      },
-      "from_address": {
-        "type": "string",
-        "title": "From Address",
-        "default": "noreply@yourdomain.com"
-      }
+  "author": "Acme, Inc.",
+  "category": "communications",
+  "icon": "icon.png",
+  "tier": "free",
+  "capabilities": ["send_email"],
+  "subscribes_to": ["ticket.status_changed"],
+  "settings_schema": [
+    {
+      "key": "api_key",
+      "label": "Acme API Key",
+      "type": "password",
+      "required": true,
+      "encrypted": true
     },
-    "required": ["api_key"]
-  },
-  "settings_ui": "src/components/SettingsForm.tsx",
-  "handler": "src/index.ts"
+    {
+      "key": "from_address",
+      "label": "From Address",
+      "type": "text",
+      "default": "noreply@yourdomain.com"
+    }
+  ]
 }
 ```
 
 ### Manifest Fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | No | Unique plugin ID (reverse domain: `com.company.name`) |
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `id` | string | ✓ | Lowercase kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`) |
 | `name` | string | ✓ | Display name |
-| `version` | string | ✓ | Semantic version (e.g., `1.0.0`) |
-| `author` | string | ✓ | Author name |
-| `description` | string | ✓ | 1-2 sentence description |
-| `capabilities` | string[] | ✓ | Capabilities this plugin provides |
-| `permissions` | string[] | No | Data access permissions (see below) |
-| `handler` | string | ✓ | Main handler file path |
-| `settings_ui` | string | No | React component for plugin settings |
-| `tier_gates` | object | No | Feature availability by tier |
+| `description` | string | ✓ | Short description |
+| `version` | string | ✓ | Valid semver |
+| `author` | string | ✓ | Author / vendor name |
+| `category` | enum | ✓ | One of the categories below |
+| `icon` | string | — | Icon asset path |
+| `tier` | string | — | Defaults to `"free"` |
+| `capabilities` | string[] | ✓ | Non-empty; the capabilities the plugin provides |
+| `subscribes_to` | string[] | — | Lifecycle events to receive (defaults to `[]`) |
+| `settings_schema` | object[] | — | Config fields (defaults to `[]`) |
+
+**Categories:** `payments`, `communications`, `ai_provider`, `file_storage`, `accounting`,
+`marketing`, `hardware`, `analytics`, `workflow`, `scheduling`, `knowledge`, `productivity`.
 
 ### Capabilities
 
-Plugins declare capabilities they provide. RepairOps uses these to route tasks:
-
-```json
-{
-  "capabilities": [
-    "email_provider",      // Can send email
-    "sms_provider",        // Can send SMS
-    "payments_provider"    // Can process payments
-  ]
-}
-```
-
-**14 Built-In Capability Types:**
+Plugins declare the capabilities they provide. RepairOps uses these for routing. The full set
+(26 capabilities):
 
 ```
-sms_provider           — Send SMS messages
-email_provider         — Send email
-label_printer          — Print labels
-payments_provider      — Process payments
-parts_provider         — Provide part sourcing
-rmm_provider           — Remote device management
-review_provider        — Manage online reviews
-crm_sync               — Sync customer records to CRM
-accounting_provider    — Post transactions to accounting
-appointment_provider   — Booking and scheduling
-shipping_provider      — Generate shipping labels
-voice_provider         — Voice recording/transcription
-parts_sourcing         — Component databases (BuildCores, etc.)
-backup_provider        — Backup and recovery
+send_email            send_sms              send_push
+send_chat_message     process_payment       generate_invoice
+ai_completion         ai_transcription      ai_vision           ai_embeddings
+parts_provider        rmm_provider          sync_accounting     request_review
+webhook               staff_time_clock      appointment_booking
+knowledge_base        system_build          ifixit_guides       package_tracking
+voice_call_log        voice_ringout         voicemail_intake
+voice_copilot_input   voice_copilot_parse
 ```
 
-### Permissions
+### Settings Schema
 
-Define what data your plugin can access:
+Each entry in `settings_schema` defines one configuration field:
 
-```json
-{
-  "permissions": [
-    "read:tickets",        // View ticket data
-    "read:customers",      // View customer profiles
-    "read:inventory",      // View parts inventory
-    "write:tickets",       // Modify ticket data
-    "write:customers",     // Create/update customers
-    "write:communications" // Send emails/SMS
-  ]
-}
+| Field | Type | Notes |
+|-------|------|-------|
+| `key` | string | Unique within the manifest |
+| `label` | string | Shown in the settings UI |
+| `type` | enum | `text`, `password`, `toggle`, `select`, `number`, or `url` |
+| `required` | boolean | Defaults to `false` |
+| `default` | any | Optional default value |
+| `options` | `{label,value}[]` | Required for `select` |
+| `help_text` | string | Optional helper text |
+| `encrypted` | boolean | Defaults to `false`; when `true` the field **must** be `type: "password"` |
+
+Secrets (API keys, tokens) should use `type: "password"` with `encrypted: true` so they are stored
+with envelope encryption.
+
+### Validation Rules
+
+`validateManifest()` enforces:
+
+1. Conformance to `PluginManifestSchema`.
+2. `id` is lowercase kebab-case.
+3. `version` is valid semver.
+4. `capabilities` is non-empty.
+5. Every `subscribes_to` entry is a valid lifecycle event (see below).
+6. `settings_schema` keys are unique.
+7. Any field with `encrypted: true` has `type: "password"`.
+
+## Lifecycle Events
+
+A plugin receives the events it lists in `subscribes_to`. The available events:
+
+```
+ticket.created            ticket.assigned          ticket.status_changed
+ticket.payment.received   ticket.closed            ticket.voided
+customer.created          customer.updated         inventory.low_stock
+user.clocked_in           user.clocked_out
+communication.sent        communication.received
 ```
 
-### Tier Gates
+:::note
+These plugin lifecycle events are distinct from the [REST webhook events](/developer/api-reference/#webhook-events).
+Lifecycle events are delivered to installed plugins in-process; webhooks are HTTP callbacks to
+external URLs.
+:::
 
-Make features available only on specific tiers:
+## Authoring a Plugin
 
-```json
-{
-  "tier_gates": {
-    "sms_reminders": "starter",   // Available on Starter+
-    "advanced_reporting": "pro",   // Available on Pro+
-    "custom_workflows": "enterprise" // Enterprise only
+Extend `BasePlugin` (or a specialized base class) and implement `getCapabilities()` and `onEvent()`:
+
+```typescript
+import { BasePlugin, type PluginContext } from '@repairops/plugin-sdk'
+
+export class AcmeEmailPlugin extends BasePlugin {
+  getCapabilities() {
+    return ['send_email'] as const
+  }
+
+  async onEvent(event, ctx: PluginContext) {
+    if (event.type === 'ticket.status_changed' && event.data.to === 'READY_FOR_PICKUP') {
+      const apiKey = ctx.settings.api_key
+      this.log('info', `Sending pickup email for ticket ${event.data.ticket_code}`)
+      // call your email provider...
+    }
   }
 }
 ```
 
-When a shop doesn't have the required tier, features are disabled in the UI.
+The `PluginContext` passed to your plugin contains only `orgId`, `shopId`, `userId`, the resolved
+`settings`, and a scoped `logger` — there are no direct database or secret handles. Specialized base
+classes give you typed entry points: `AIProviderPlugin` (`complete()`, optional `embed()` /
+`transcribe()`), `PaymentPlugin` (`processPayment()`, `refund()`), and `CommunicationPlugin`
+(`send()`).
 
-## Plugin Handler
+### Security & Isolation Model
 
-The handler is the main entry point for your plugin.
+There is **no runtime VM/iframe sandbox**. Plugin security comes from the contract, not code
+isolation:
 
-### Basic Handler
+- **Capability-based routing** — a plugin can only be invoked for capabilities it declares.
+- **Tier gates** — a plugin's pricing tier is checked against the org's plan at install time.
+- **Scoped context** — `PluginContext` exposes org/shop/user/settings/logger only.
+- **Row-level security** — all data access is constrained by RLS at the database layer.
+- **Encrypted settings** — secret fields are envelope-encrypted.
+- **Manual review** — submissions go through an admin-scoped review pipeline before approval.
 
-```typescript
-// src/index.ts
-import { RepairOpsPlugin, TicketEvent, PaymentEvent } from '@repairops/sdk'
+## Testing
 
-const plugin: RepairOpsPlugin = {
-  name: 'Email Integration',
-  version: '1.0.0',
-
-  async onInstall(config: Record<string, string>) {
-    console.log('Plugin installed with config:', config)
-    // Validate API key, create resources, etc.
-  },
-
-  async onUninstall() {
-    console.log('Plugin uninstalled')
-    // Clean up resources
-  },
-
-  async onEnable() {
-    console.log('Plugin enabled')
-  },
-
-  async onDisable() {
-    console.log('Plugin disabled')
-  },
-
-  handlers: {
-    // Listen to ticket events
-    'ticket.created': async (event: TicketEvent) => {
-      console.log('New ticket:', event.ticket.id)
-      // Send email notification
-    },
-
-    'ticket.transitioned': async (event: TicketEvent) => {
-      console.log('Ticket transitioned:', event.from, '->', event.to)
-    },
-
-    // Listen to payment events
-    'payment.processed': async (event: PaymentEvent) => {
-      console.log('Payment received:', event.amount)
-    },
-  },
-}
-
-export default plugin
-```
-
-## Event Handlers
-
-Plugins react to RepairOps events using handlers.
-
-### Ticket Events
+Use the SDK test helpers to exercise your plugin without a running app:
 
 ```typescript
-handlers: {
-  'ticket.created': async (event) => {
-    const { ticket, shop, customer } = event
-    console.log(`New ticket: ${ticket.number} for ${customer.name}`)
-  },
-
-  'ticket.transitioned': async (event) => {
-    const { ticket, from_status, to_status, actor } = event
-    if (to_status === 'QC_REVIEW') {
-      // Send QC checklist
-    }
-  },
-
-  'ticket.updated': async (event) => {
-    const { ticket, changed_fields } = event
-    if (changed_fields.includes('total_cost')) {
-      // Update cost in external system
-    }
-  },
-}
-```
-
-### Payment Events
-
-```typescript
-handlers: {
-  'payment.processed': async (event) => {
-    const { ticket, amount, method, timestamp } = event
-    // Record in accounting software
-  },
-
-  'payment.failed': async (event) => {
-    const { ticket, error, timestamp } = event
-    // Alert shop owner
-  },
-}
-```
-
-### Custom Events
-
-Plugins can emit custom events for other plugins:
-
-```typescript
-async emitEvent(type: string, data: Record<string, any>) {
-  await this.api.emit('custom.my-event', data)
-}
-```
-
-## UI Components (React)
-
-### Settings Form
-
-Create a configuration UI for your plugin:
-
-```typescript
-// src/components/SettingsForm.tsx
-import React, { useState } from 'react'
-import { Button, Input, Select, Alert } from '@repairops/ui'
-
-export default function SettingsForm({ config, onSave }: any) {
-  const [apiKey, setApiKey] = useState(config.api_key || '')
-  const [fromEmail, setFromEmail] = useState(config.from_email || '')
-  const [error, setError] = useState('')
-
-  const handleSave = async () => {
-    if (!apiKey || !fromEmail) {
-      setError('All fields required')
-      return
-    }
-    try {
-      await onSave({ api_key: apiKey, from_email: fromEmail })
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  return (
-    <div>
-      <h3>Email Plugin Settings</h3>
-      {error && <Alert type="error">{error}</Alert>}
-
-      <Input
-        label="API Key"
-        type="password"
-        value={apiKey}
-        onChange={(e) => setApiKey(e.target.value)}
-        required
-      />
-
-      <Input
-        label="From Email Address"
-        type="email"
-        value={fromEmail}
-        onChange={(e) => setFromEmail(e.target.value)}
-        required
-      />
-
-      <Button onClick={handleSave}>Save Settings</Button>
-    </div>
-  )
-}
-```
-
-Add to manifest:
-```json
-{
-  "settings_ui": "src/components/SettingsForm.tsx"
-}
-```
-
-## Testing Plugins
-
-### Unit Tests
-
-```typescript
-// src/tests/plugin.test.ts
 import { describe, it, expect } from 'vitest'
-import plugin from '../index'
+import { createTestContext, createTestEvent } from '@repairops/plugin-sdk'
+import { AcmeEmailPlugin } from '../src/index'
 
-describe('Email Plugin', () => {
-  it('should send email on ticket creation', async () => {
-    const event = {
-      ticket: { id: '123', number: 'T001', status: 'INTAKE' },
-      customer: { name: 'John', email: 'john@example.com' }
-    }
-
-    const result = await plugin.handlers['ticket.created'](event)
-    expect(result.success).toBe(true)
-  })
-
-  it('should handle missing email gracefully', async () => {
-    const event = {
-      ticket: { id: '123' },
-      customer: { name: 'John' }
-    }
-
-    const result = await plugin.handlers['ticket.created'](event)
-    expect(result.success).toBe(false)
-    expect(result.error).toContain('email')
+describe('AcmeEmailPlugin', () => {
+  it('sends on ready-for-pickup', async () => {
+    const plugin = new AcmeEmailPlugin()
+    const ctx = createTestContext({ settings: { api_key: 'test' } })
+    const event = createTestEvent('ticket.status_changed', {
+      ticket_code: 'T-001',
+      to: 'READY_FOR_PICKUP',
+    })
+    await expect(plugin.onEvent(event, ctx)).resolves.not.toThrow()
   })
 })
 ```
 
-### Local Development
+## Submitting to the Marketplace
 
-Run plugin locally for testing:
-
-```bash
-plugin-cli dev --port 3001
-```
-
-This starts a local plugin server. Point your RepairOps dev instance to `localhost:3001` in plugin settings.
-
-### Sandbox Testing
-
-Test in a sandbox organization without affecting production data:
+Submit a plugin for review using an **`admin`**-scoped [API key](/developer/api-reference/#authentication):
 
 ```bash
-plugin-cli test --sandbox
+curl -X POST "https://app.repairops.app/api/v1/plugins/submit" \
+  -H "Authorization: Bearer ro_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "manifest": { "id": "acme-email", "name": "Acme Email", "...": "..." },
+    "bundle_url": "https://example.com/acme-email-1.0.0.zip",
+    "notes": "Initial submission"
+  }'
 ```
 
-## API Access
+The submission is validated with `validateManifest()` (invalid → `400 INVALID_MANIFEST`) and queued
+with status `submitted`. Track status with `GET /api/v1/plugins/submissions` and
+`GET /api/v1/plugins/submissions/:id`. Status flows: `submitted → reviewing → approved | rejected`.
 
-Plugins can access RepairOps data through the SDK:
+## Installing Plugins
 
-```typescript
-import { RepairOpsAPI } from '@repairops/sdk'
-
-const api = new RepairOpsAPI(config.api_key)
-
-// Read data
-const tickets = await api.tickets.list({ status: 'IN_REPAIR' })
-const customers = await api.customers.get(customer_id)
-const inventory = await api.inventory.list()
-
-// Write data
-const newTicket = await api.tickets.create({
-  shop_id,
-  customer_id,
-  issue_description: 'From plugin'
-})
-
-// Get KPIs
-const kpis = await api.kpis.get({
-  shop_id,
-  start_date: '2026-01-01',
-  end_date: '2026-02-01'
-})
-```
-
-## Building & Publishing
-
-### Build Plugin
-
-```bash
-npm run build
-plugin-cli package
-```
-
-Generates `my-plugin-1.0.0.zip`
-
-### Submit to Marketplace
-
-1. Create account at [plugins.repairops.io](https://plugins.repairops.io)
-2. Click **Submit Plugin**
-3. Upload `.zip` file
-4. Add description, screenshots, pricing
-5. Submit for review
-
-**Review process:**
-- Security scan (no malicious code)
-- Permissions audit (justified data access)
-- Functionality test (works as described)
-- Documentation review
-- Approval typically within 48 hours
-
-### Publishing on NPM (Optional)
-
-Share your plugin source on NPM:
-
-```bash
-npm publish
-```
-
-Other developers can then:
-```bash
-npm install your-plugin
-```
-
-## Examples
-
-### Email Notification Plugin
-
-```typescript
-import { RepairOpsPlugin } from '@repairops/sdk'
-
-const plugin: RepairOpsPlugin = {
-  name: 'Email Notifications',
-
-  handlers: {
-    'ticket.transitioned': async (event) => {
-      if (event.to_status === 'READY_FOR_PICKUP') {
-        // Send customer pickup notification
-        await fetch('https://api.sendgrid.com/v3/mail/send', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.config.sendgrid_key}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            personalizations: [{
-              to: [{ email: event.customer.email }]
-            }],
-            from: { email: this.config.from_email },
-            subject: `Your repair is ready for pickup (Ticket #${event.ticket.number})`,
-            content: [{
-              type: 'text/html',
-              value: `Your device is ready to pick up. Total cost: $${event.ticket.total_cost}`
-            }]
-          })
-        })
-      }
-    }
-  }
-}
-
-export default plugin
-```
-
-### SMS Reminder Plugin
-
-```typescript
-const plugin: RepairOpsPlugin = {
-  handlers: {
-    'ticket.created': async (event) => {
-      // Schedule SMS reminder for 24 hours before pickup
-      const reminderTime = new Date(event.ticket.estimated_pickup)
-      reminderTime.setDate(reminderTime.getDate() - 1)
-
-      await this.api.scheduler.schedule('sms.send', {
-        to: event.customer.phone,
-        message: `Reminder: Your repair (${event.ticket.number}) will be ready for pickup tomorrow!`,
-        scheduled_for: reminderTime.toISOString()
-      })
-    }
-  }
-}
-```
-
-## Best Practices
-
-**Permissions:** Only request permissions you actually use. Users review these during install.
-
-**Error handling:** Always handle API errors gracefully. Don't let one failure break the entire plugin.
-
-**Logging:** Log important events for debugging. Use structured logging (JSON format).
-
-**Performance:** Offload heavy operations to background jobs. Don't block the ticket update.
-
-**Configuration:** Make your plugin configurable. Don't hardcode API keys or endpoints.
-
-**Testing:** Write tests for your handlers. Test edge cases and error scenarios.
-
-**Documentation:** Write a clear README with setup instructions and screenshots.
-
-## Troubleshooting
-
-**Plugin not installing**
-- Check manifest.json syntax (must be valid JSON)
-- Verify all required fields are present
-- Check file permissions
-
-**Handlers not firing**
-- Verify event type name matches exactly
-- Check plugin is enabled in settings
-- Review plugin logs for errors
-
-**API calls failing**
-- Verify API key has correct permissions
-- Check rate limits (1000 requests/hour)
-- Review error response for details
+Once approved, a plugin appears in the in-app **Marketplace** (Settings → Marketplace). Installing
+is **OWNER-only** and tier-gated: a plugin's pricing (`free`, `included_pro`, `included_business`,
+`included_enterprise`, or `paid`) is checked against the org's current plan. A newly installed
+plugin starts in `configuring` status until its required settings are filled in (a few first-party
+plugins auto-activate).
 
 ## Related Documentation
 
-- **[Developer Overview](/developer/)** — Plugin system overview
-- **[Marketplace](/features/plugins/)** — Discover and install plugins
-- **[Plugin Examples](https://github.com/repairops/plugin-examples)** — Sample plugins on GitHub
+- **[REST API Reference](/developer/api-reference/)** — API keys, scopes, and the plugin submission endpoints
+- **[Marketplace](/features/plugins/)** — discover and install plugins
+- **[Feature Matrix](/reference/feature-matrix/)** — which plugins are included at each tier

@@ -17,7 +17,8 @@ Click any status node to see its details, allowed transitions, permitted roles, 
 
 ## Statuses
 
-RepairOps defines 13 ticket statuses. Every ticket starts at INTAKE and ends at CLOSED or VOIDED.
+RepairOps defines 14 ticket statuses. Every ticket starts at INTAKE and ends in one of three
+terminal states: CLOSED, UNCLAIMED, or VOIDED.
 
 | # | Status | Description |
 |---|--------|-------------|
@@ -32,8 +33,9 @@ RepairOps defines 13 ticket statuses. Every ticket starts at INTAKE and ends at 
 | 9 | QC_FAILED | QC found issues, returns to repair |
 | 10 | READY_FOR_PICKUP | Repair complete, awaiting customer |
 | 11 | PICKED_UP | Customer collected the device |
-| 12 | CLOSED | Final state — ticket complete |
-| 13 | VOIDED | Cancelled at any stage |
+| 12 | CLOSED | Terminal state — ticket complete |
+| 13 | UNCLAIMED | Terminal state — owner cleanup for ready work that was never collected |
+| 14 | VOIDED | Terminal state — cancelled at any stage |
 
 ## State Diagram (Mermaid)
 
@@ -64,11 +66,15 @@ stateDiagram-v2
     QC_FAILED --> IN_REPAIR : retry
     QC_FAILED --> VOIDED
     READY_FOR_PICKUP --> PICKED_UP
+    READY_FOR_PICKUP --> UNCLAIMED
     READY_FOR_PICKUP --> VOIDED
     PICKED_UP --> CLOSED
     CLOSED --> [*]
+    UNCLAIMED --> [*]
     VOIDED --> [*]
 ```
+
+`PICKED_UP` is the only non-terminal status that cannot be voided — it can only move to `CLOSED`.
 
 ## Permission Matrix
 
@@ -88,9 +94,13 @@ Not every role can trigger every transition. The table below shows which roles a
 | READY_FOR_PICKUP | ✓ | ✓ | ✓ | | | | |
 | PICKED_UP | ✓ | ✓ | ✓ | | | | |
 | CLOSED | ✓ | ✓ | ✓ | | | | |
+| UNCLAIMED | ✓ | | | | | | |
 | VOIDED | ✓ | ✓ | | | | | |
 
-**OWNER** and **MANAGER** can perform any transition. Other roles are limited to transitions relevant to their responsibilities.
+**OWNER** can perform any transition. **MANAGER** can perform every transition except moving a
+ticket to **UNCLAIMED**, which is OWNER-only. **ACCOUNTING** and **DISPATCHER** have no transition
+permissions at all — they are view-only roles on the board. Other roles are limited to transitions
+relevant to their responsibilities.
 
 ## Gate Requirements
 
@@ -107,6 +117,14 @@ Certain statuses have **exit gates** — conditions that must be met before a ti
 Gates are **exit gates** — they are checked when leaving a gated status. Transitioning to VOIDED always bypasses gates, allowing tickets to be cancelled at any stage regardless of incomplete data.
 :::
 
+### Payment-Completion Gate
+
+In addition to the four data gates above, moving a ticket to **PICKED_UP** or **CLOSED** requires
+the latest active invoice (if one exists) to be fully paid. An outstanding balance returns a
+`GATE_NOT_MET` error. This is enforced in the application layer alongside the exit gates.
+Closing a ticket also requires its latest QC outcome to be a pass. Marking a ticket **UNCLAIMED**
+(owner cleanup for devices the customer never collected) has **no** payment requirement.
+
 ## Error Codes
 
 When a transition fails, the API returns one of the following error codes.
@@ -115,17 +133,27 @@ When a transition fails, the API returns one of the following error codes.
 |------|---------|
 | `INVALID_TRANSITION` | The from-to transition is not in the state graph. For example, you cannot go directly from INTAKE to IN_REPAIR. |
 | `PERMISSION_DENIED` | The user's role cannot move tickets to the target status. Check the permission matrix above. |
-| `GATE_NOT_MET` | The exit gate for the current status has unmet requirements. Complete the required fields before transitioning. |
-| `CONFLICT` | The ticket's current status does not match the `expectedStatus` parameter. This means another user changed the ticket since you last loaded it (optimistic concurrency check). Reload the ticket and try again. |
+| `GATE_NOT_MET` | The exit gate for the current status (or the payment-completion gate) has unmet requirements. Complete the required fields, or confirm payment, before transitioning. |
+| `CONFLICT` | The ticket's current status does not match the expected status — another user changed it since you last loaded it (optimistic concurrency). The **REST API** returns HTTP `409 CONFLICT`; the in-app server action reports the same condition as a status-mismatch error. Reload the ticket and try again. |
 
 ## How Transitions Work
 
-All ticket status changes flow through a single code path:
+Every transition entry point — the staff `transitionTicket` server action, the in-app transition
+route, the public `POST /api/v1/tickets/:id/transition` endpoint, and the voice copilot — funnels
+through one shared code path, so validation can't drift:
 
-1. **Client** calls the `transitionTicket` server action with `ticketId`, `newStatus`, and `expectedStatus`.
-2. **Server Action** validates the user's role and checks permissions.
-3. **Postgres function** `transition_ticket()` atomically validates the transition graph, checks gates, and updates the status.
-4. A `ticket_events` row is created to record the transition in the audit trail.
-5. Outbox events fire to trigger notifications (SMS, email, push) based on the new status.
+1. **Client** calls with `ticketId` (or path id), the `expectedStatus`, and the target `newStatus`.
+2. **Application layer** loads the org-scoped ticket, checks the expected status (optimistic
+   concurrency), verifies the actor's membership and shop access, then runs shared validation:
+   transition graph → role permission → exit gates → payment-completion gate.
+3. **Postgres function** `transition_ticket()` performs the atomic write only: it re-locks the row,
+   re-checks the expected status, updates the status, and inserts the `ticket_events` and
+   `outbox_events` rows in one transaction. (Graph/permission/gate validation happens in step 2,
+   not in the database function.)
+4. The `ticket_events` row records the transition in the audit trail.
+5. Outbox and webhook events fire to trigger notifications (SMS, email, push) and integrations.
 
-This architecture ensures that no ticket can ever reach an invalid state, even under concurrent access.
+The returned `to` status may differ from the requested `newStatus` in one case: an `APPROVED`
+transition auto-advances to `WAITING_ON_PARTS` when the approved quote has parts that still need
+ordering. This architecture ensures no ticket can reach an invalid state, even under concurrent
+access.

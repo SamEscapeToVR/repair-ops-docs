@@ -51,9 +51,9 @@ Log into your identity provider's admin panel and add RepairOps as an applicatio
 1. **Azure AD** → **Enterprise Applications** → **New Application**
 2. Search for "RepairOps" or **Create your own application**
 3. In **SAML-based Sign-on**, enter:
-   - **Identifier (Entity ID):** `[your-org].repairops.io`
+   - **Identifier (Entity ID):** `[your-org].repairops.app`
    - **Reply URL (ACS):** (paste from RepairOps)
-   - **Sign on URL:** `https://[your-org].repairops.io/sso/login`
+   - **Sign on URL:** `https://[your-org].repairops.app/sso/login`
 4. Under **SAML Signing Certificate**, copy the **Certificate (raw)**
 5. Copy **Login URL** and **Logout URL**
 6. Save in Azure AD
@@ -102,22 +102,22 @@ Log into your identity provider:
 #### Okta
 1. **Applications** → **Create App Integration** → **OIDC - Web Application**
 2. Enter RepairOps as the app name
-3. For **Sign-in redirect URIs**, enter: `https://[your-org].repairops.io/sso/callback`
-4. For **Sign-out redirect URIs**, enter: `https://[your-org].repairops.io/sso/logout`
+3. For **Sign-in redirect URIs**, enter: `https://[your-org].repairops.app/sso/callback`
+4. For **Sign-out redirect URIs**, enter: `https://[your-org].repairops.app/sso/logout`
 5. For **Assignments**, select which users/groups can access RepairOps
 6. Copy your **Client ID** and **Client Secret**
 
 #### Auth0
 1. **Applications** → **Create Application** → **Regular Web Application**
 2. Configure:
-   - **Application URIs** → **Allowed Callback URLs:** `https://[your-org].repairops.io/sso/callback`
-   - **Allowed Logout URLs:** `https://[your-org].repairops.io/sso/logout`
+   - **Application URIs** → **Allowed Callback URLs:** `https://[your-org].repairops.app/sso/callback`
+   - **Allowed Logout URLs:** `https://[your-org].repairops.app/sso/logout`
 3. Copy **Client ID** and **Client Secret**
 
 #### Google
 1. **Google Cloud Console** → **APIs & Services** → **Create Credentials** → **OAuth 2.0 Client ID**
 2. Application type: **Web application**
-3. Authorized redirect URIs: `https://[your-org].repairops.io/sso/callback`
+3. Authorized redirect URIs: `https://[your-org].repairops.app/sso/callback`
 4. Copy **Client ID** and **Client Secret**
 
 ### Step 2: Add OIDC Configuration to RepairOps

@@ -83,5 +83,6 @@ Assign roles in **Settings** → **Team** → **Members**.
 
 - **[Feature Documentation](/features/)** — How to use RepairOps features
 - **[Developer Documentation](/developer/)** — API, plugins, self-hosted
-- **[Help Center](https://repairops.io/help)** — FAQs and troubleshooting
-- **[Support](https://repairops.io/support)** — Contact our support team
+- **[Documentation Home](https://docs.repairops.app)** — Guides and reference
+- **[Community](https://community.repairops.app)** — Ask questions and share tips
+- **[Support](mailto:support@repairops.app)** — Contact our support team

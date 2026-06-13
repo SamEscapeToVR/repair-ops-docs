@@ -38,13 +38,14 @@ Organization Owners can invite Staff Users and assign roles (Owner, Manager, Fro
 ## 3. Subscription Plans and Billing
 
 ### 3a. Plans
-RepairOps offers three subscription tiers:
+RepairOps offers four subscription tiers (Enterprise is sales-assisted):
 
 | Plan | Monthly | Annual | Key Limits |
 |------|---------|--------|------------|
-| **Starter** | $49/mo | $470/yr | 150 tickets/mo, 3 users, 1 shop |
-| **Pro** | $99/mo | $950/yr | Unlimited tickets, 15 users, 5 shops |
-| **Enterprise** | $199/mo | $1,910/yr | Unlimited everything, SSO, white-label, API access |
+| **Starter** | $99/mo | $948/yr ($79/mo) | 150 work orders/mo, 3 users, 1 location |
+| **Pro** | $199/mo | $1,908/yr ($159/mo) | 10,000 work orders/mo, 10 users, 1 location |
+| **Business** | $449/mo | $4,308/yr ($359/mo) | 25,000 work orders/mo, 20 users, 2 locations, REST API |
+| **Enterprise** | From $1,500/mo | Custom | 100,000 work orders/mo, 500 users, 100 locations, SSO, white-label |
 
 Plan details, features, and limits are described in our [Feature Matrix](/reference/feature-matrix/) and [Plans & Billing Guide](/getting-started/plans-and-billing/).
 
@@ -62,10 +63,10 @@ AI features require a separate add-on purchase:
 
 | Add-On | Cost | Credits/Month |
 |--------|------|---------------|
-| AI Ready | $79/mo | 0 (BYOK only) |
-| AI Assist | $79/mo | 200 managed |
-| AI Copilot | $149/mo | 500 managed |
-| Enterprise AI | Included | Unlimited |
+| AI Ready | $49/mo | 0 (BYOK only) |
+| AI Assist | $79/mo | 200 managed (400 cap) |
+| AI Copilot | $149/mo | 500 managed (1,000 cap) |
+| Enterprise AI | Custom | 2,000 managed (5,000 cap) |
 
 Credit packs (100/$15, 500/$60, 1,000/$100) can be purchased separately. Credits are non-refundable and expire after 12 months of inactivity.
 
