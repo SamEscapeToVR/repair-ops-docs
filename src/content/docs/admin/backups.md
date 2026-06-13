@@ -232,25 +232,20 @@ Useful for:
 
 ### At-Rest Encryption
 
-All backups stored on disk are encrypted with:
-- **Algorithm:** AES-256-GCM
-- **Key Management:** AWS KMS (cloud) or Hardware Security Module (Enterprise)
-- **Automatic:** No configuration needed
+- Sensitive fields (API keys, credentials, payment-provider tokens) remain AES-256-GCM
+  envelope-encrypted inside the backup.
+- Backup storage uses provider-side encryption at rest.
+- **Automatic:** no configuration needed.
 
 ### In-Transit Encryption
 
-Backups transferred over the network use:
-- **Protocol:** HTTPS/TLS 1.3
-- **Certificate:** Automatically managed (Let's Encrypt)
+Backups are transferred over TLS (HTTPS).
 
-### Customer-Managed Keys (Enterprise)
+### Key Rotation
 
-Enterprise customers can:
-- Bring their own KMS (AWS KMS, Google Cloud KMS, Azure Key Vault)
-- Manage encryption keys independently
-- Rotate keys on your schedule
-
-Contact support for setup.
+Encryption keys support rotation via a versioned key ring, so keys can be rotated without
+re-encrypting everything at once. Enterprise customers with specific key-management or
+data-residency requirements should contact support to discuss available options.
 
 ## Disaster Recovery Plan
 
