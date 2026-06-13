@@ -342,7 +342,7 @@ webhook payloads**. Not found / cross-org → `404 NOT_FOUND`.
 | `customer_id` | ✓ | Must belong to your org |
 | `device_id` | ✓ | Must belong to your org — devices are **not** auto-created |
 | `issue_category` | — | |
-| `issue_description` | — | Maps to the `reported_symptoms` column |
+| `issue_description` | — | Free-text description of the reported issue |
 | `priority` | — | Defaults to `standard` |
 
 Creation runs through the atomic intake routine (meter check + ticket insert + `ticket_created`
@@ -354,9 +354,9 @@ limit returns `402 LIMIT_REACHED`.
 
 `PATCH /tickets/:id` — scope `write`.
 
-Only these fields can be updated: `issue_category`, `issue_description` (→ `reported_symptoms`),
-`priority`, `assigned_tech_id`, `findings_summary`. **Status cannot be changed via `PATCH`** — use
-the transition endpoint. A no-op (no field actually changed) returns `200` and writes nothing.
+Only these fields can be updated: `issue_category`, `issue_description`, `priority`,
+`assigned_tech_id`, `findings_summary`. **Status cannot be changed via `PATCH`** — use the
+transition endpoint. A no-op (no field actually changed) returns `200` and writes nothing.
 Changes emit a `ticket.updated` webhook with a per-field `{ from, to }` change map.
 
 ### Transition Ticket Status
@@ -364,8 +364,8 @@ Changes emit a `ticket.updated` webhook with a per-field `{ from, to }` change m
 `POST /tickets/:id/transition` — scope `write`.
 
 Moves a ticket through the [state machine](/reference/state-machine/), running the **same
-validation as the staff app** (state graph + role permissions + exit gates + payment-completion
-gate). An API `write` key acts with **OWNER-equivalent** transition permissions.
+validation as the staff app** (state graph + exit gates + payment-completion gate). A `write` key
+may perform any transition that is valid for the ticket's current status.
 
 **Body:**
 - `expected_status` (required) — the status you believe the ticket is in (optimistic concurrency).

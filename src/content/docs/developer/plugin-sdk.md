@@ -186,17 +186,17 @@ classes give you typed entry points: `AIProviderPlugin` (`complete()`, optional 
 `transcribe()`), `PaymentPlugin` (`processPayment()`, `refund()`), and `CommunicationPlugin`
 (`send()`).
 
-### Security & Isolation Model
+### Security & Permissions Model
 
-There is **no runtime VM/iframe sandbox**. Plugin security comes from the contract, not code
-isolation:
+Plugins operate under a least-privilege contract enforced on several layers:
 
-- **Capability-based routing** — a plugin can only be invoked for capabilities it declares.
+- **Capability-based routing** — a plugin is only invoked for the capabilities it declares.
 - **Tier gates** — a plugin's pricing tier is checked against the org's plan at install time.
-- **Scoped context** — `PluginContext` exposes org/shop/user/settings/logger only.
+- **Scoped context** — `PluginContext` exposes only `orgId`, `shopId`, `userId`, the resolved
+  `settings`, and a logger — never direct database or credential handles.
 - **Row-level security** — all data access is constrained by RLS at the database layer.
 - **Encrypted settings** — secret fields are envelope-encrypted.
-- **Manual review** — submissions go through an admin-scoped review pipeline before approval.
+- **Review pipeline** — submissions go through a review process before they are approved and listed.
 
 ## Testing
 
