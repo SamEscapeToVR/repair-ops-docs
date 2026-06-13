@@ -342,7 +342,7 @@ webhook payloads**. Not found / cross-org → `404 NOT_FOUND`.
 | `customer_id` | ✓ | Must belong to your org |
 | `device_id` | ✓ | Must belong to your org — devices are **not** auto-created |
 | `issue_category` | — | |
-| `issue_description` | — | Maps to the `reported_symptoms` column |
+| `issue_description` | — | Free-text description of the reported issue |
 | `priority` | — | Defaults to `standard` |
 
 Creation runs through the atomic intake routine (meter check + ticket insert + `ticket_created`
@@ -354,9 +354,9 @@ limit returns `402 LIMIT_REACHED`.
 
 `PATCH /tickets/:id` — scope `write`.
 
-Only these fields can be updated: `issue_category`, `issue_description` (→ `reported_symptoms`),
-`priority`, `assigned_tech_id`, `findings_summary`. **Status cannot be changed via `PATCH`** — use
-the transition endpoint. A no-op (no field actually changed) returns `200` and writes nothing.
+Only these fields can be updated: `issue_category`, `issue_description`, `priority`,
+`assigned_tech_id`, `findings_summary`. **Status cannot be changed via `PATCH`** — use the
+transition endpoint. A no-op (no field actually changed) returns `200` and writes nothing.
 Changes emit a `ticket.updated` webhook with a per-field `{ from, to }` change map.
 
 ### Transition Ticket Status
@@ -364,8 +364,8 @@ Changes emit a `ticket.updated` webhook with a per-field `{ from, to }` change m
 `POST /tickets/:id/transition` — scope `write`.
 
 Moves a ticket through the [state machine](/reference/state-machine/), running the **same
-validation as the staff app** (state graph + role permissions + exit gates + payment-completion
-gate). An API `write` key acts with **OWNER-equivalent** transition permissions.
+validation as the staff app** (state graph + exit gates + payment-completion gate). A `write` key
+may perform any transition that is valid for the ticket's current status.
 
 **Body:**
 - `expected_status` (required) — the status you believe the ticket is in (optimistic concurrency).
@@ -554,23 +554,16 @@ Subscribe an endpoint to one or more event types when you register it.
 
 ### Event Types
 
-| Event | Delivery status |
-|-------|-----------------|
-| `ticket.created` | ✅ Delivered |
-| `ticket.updated` | ✅ Delivered |
-| `ticket.transitioned` | ✅ Delivered |
-| `ticket.voided` | ✅ Delivered (alongside `ticket.transitioned` when a ticket is voided) |
-| `customer.created` | ⏳ Reserved — accepted on subscription but not yet delivered to REST endpoints |
-| `customer.updated` | ⏳ Reserved |
-| `quote.approved` | ⏳ Reserved |
-| `quote.rejected` | ⏳ Reserved |
-| `payment.received` | ⏳ Reserved |
-| `inventory.low_stock` | ⏳ Reserved |
+Subscribe an endpoint to one or more of the supported ticket events:
 
-:::caution
-You can subscribe an endpoint to any of the ten event types, but only the four `ticket.*` events
-are currently delivered to REST webhook endpoints. The other six are reserved for a future release.
-:::
+| Event | Description |
+|-------|-------------|
+| `ticket.created` | A ticket was created |
+| `ticket.updated` | A ticket's fields were updated |
+| `ticket.transitioned` | A ticket moved to a new status |
+| `ticket.voided` | A ticket was voided (sent alongside `ticket.transitioned`) |
+
+Additional event types may be added in future releases.
 
 ### Payload
 
@@ -610,8 +603,8 @@ Verify by recomputing `HMAC_SHA256(secret, rawBody)` and comparing against `X-Re
   timeout per attempt.
 - Up to **3 attempts** with backoff delays of **5s, 30s, then 2 minutes**. Any `2xx` is a success;
   after 3 failures the delivery is marked failed.
-- Endpoints must resolve to public hosts — private/loopback targets are blocked (SSRF guard) and
-  fail permanently without retry.
+- Endpoints must be publicly reachable — private or loopback targets are rejected and fail
+  permanently without retry.
 - Implement idempotency on your side using the delivery `id`, and respond `2xx` quickly.
 
 ## API Keys & Lifecycle

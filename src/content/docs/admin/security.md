@@ -211,14 +211,14 @@ Sensitive data like API keys and payment details are encrypted:
 
 ### Encryption Details
 
-- **Algorithm:** AES-256-GCM
-- **Key Storage:** Hardware Security Module (HSM)
-- **Access:** Only necessary services can decrypt
+- **Method:** AES-256-GCM envelope encryption
+- **Key management:** platform-managed data keys with key-ring rotation support
+- **Access:** secrets are decrypted server-side only; reveals are gated and written to the audit trail
 
 ### What's Encrypted
 
 - API keys (vendor integrations)
-- Payment card info (PCI compliance)
+- Payment-provider tokens (card data itself is held by the payment processor, not RepairOps)
 - SAML/OIDC credentials
 - 3rd-party API credentials
 - SSH keys (for self-hosted backups)
