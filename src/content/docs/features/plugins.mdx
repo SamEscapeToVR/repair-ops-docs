@@ -208,7 +208,7 @@ Browse, install, and review plugins from the **Marketplace**:
 3. Click a plugin to view:
    - Description and screenshots
    - Installation instructions
-   - Pricing (free or Pro/Enterprise only)
+   - Pricing (free, included with Pro / Business / Enterprise, or paid)
    - Customer reviews (rating 1-5 stars)
    - Required permissions (data access, shop features)
 
@@ -234,26 +234,24 @@ Reviews are moderated and appear publicly (helps other shops decide).
 
 RepairOps uses **capabilities** to automatically route tasks to the right plugin:
 
-### 14 Capability Types
+### Capability Types
 
-| Capability | Examples | Use For |
-|------------|----------|---------|
-| `sms_provider` | Twilio, AWS SNS | Send SMS notifications |
-| `email_provider` | SendGrid, Mailgun | Send transactional email |
-| `label_printer` | Zebra, Brother | Print work order labels |
-| `payments_provider` | Stripe, Square, PayPal | Process payment transactions |
-| `parts_provider` | Anixter, Tech Data | Auto-source parts from catalog |
-| `rmm_provider` | ConnectWise, Kaseya | Remote device management |
-| `review_provider` | Google, Yelp, Trustpilot | Manage online reviews |
-| `crmSync` | Salesforce, HubSpot | Sync customer records |
-| `accounting_provider` | QuickBooks, Xero | Post transactions to accounting |
-| `appointment_provider` | Calendly, Acuity, Setmore | Booking and scheduling |
-| `shipping_provider` | FedEx, UPS, USPS | Label and track shipments |
-| `voice_provider` | Twilio, Vonage | Voice call recording/transcription |
-| `parts_sourcing` | BuildCores, iFixit, Newegg | Component databases |
-| `backup_provider` | AWS, Google Cloud, Backblaze | Automated backups |
+A plugin declares one or more **capabilities**; RepairOps routes work to the plugin that provides
+the matching capability. There are 26 capability types:
 
-When RepairOps needs to send SMS, it automatically uses the active SMS provider. If multiple are installed, you select the default.
+| Group | Capabilities |
+|-------|--------------|
+| Communications | `send_email`, `send_sms`, `send_push`, `send_chat_message` |
+| Payments & accounting | `process_payment`, `generate_invoice`, `sync_accounting` |
+| AI | `ai_completion`, `ai_transcription`, `ai_vision`, `ai_embeddings` |
+| Parts & devices | `parts_provider`, `rmm_provider`, `package_tracking` |
+| Workflow | `webhook`, `request_review`, `staff_time_clock`, `appointment_booking` |
+| Knowledge & builds | `knowledge_base`, `system_build`, `ifixit_guides` |
+| Voice | `voice_call_log`, `voice_ringout`, `voicemail_intake`, `voice_copilot_input`, `voice_copilot_parse` |
+
+When RepairOps needs to send an SMS, it automatically uses the active `send_sms` provider. If
+multiple are installed, you select the default. See the [Plugin SDK](/developer/plugin-sdk/) for the
+full capability reference and manifest schema.
 
 ### Fallback Chains <TierBadge tier="enterprise" />
 
@@ -267,18 +265,20 @@ Configure fallback providers for reliability:
 
 This ensures critical workflows (sending customer notifications) continue even if a provider has an outage.
 
-## Third-Party Plugin SDK <TierBadge tier="enterprise" />
+## Third-Party Plugin SDK
 
-Develop your own plugins and submit to the marketplace.
+Develop your own plugins with the open `@repairops/plugin-sdk` package and submit them to the
+marketplace.
 
 **SDK includes:**
-- Plugin manifest specification (capabilities, metadata, UI components)
-- Event hooks (ticket created, status changed, payment processed)
-- UI component library (buttons, forms, modals)
-- Data access APIs (read customer, ticket, inventory data)
-- Testing framework and sandbox
+- Plugin manifest specification (id, capabilities, category, settings schema)
+- Base classes (`BasePlugin`, plus `AIProviderPlugin`, `PaymentPlugin`, `CommunicationPlugin`)
+- Lifecycle event subscriptions (ticket created, status changed, payment received, and more)
+- `validateManifest()` and a test harness (`createTestContext`, `createTestEvent`)
 
-See [Plugin SDK Documentation](/developer/plugin-sdk/) for full details.
+Submitting a plugin for review uses an `admin`-scoped REST API key (Business+), and marketplace
+installs are available from Pro and above. See [Plugin SDK Documentation](/developer/plugin-sdk/) for
+full details.
 
 ## Plugin Management UI
 
@@ -311,21 +311,21 @@ Debug plugin issues:
 
 ## Tier Availability
 
-| Feature | <TierBadge tier="starter" /> | <TierBadge tier="pro" /> | <TierBadge tier="enterprise" /> |
-|---------|:-------:|:---:|:----------:|
-| Label printer plugin | ✓ | ✓ | ✓ |
-| Status check widget | ✓ | ✓ | ✓ |
-| PCRT migration | ✓ | ✓ | ✓ |
-| Google Reviews | — | ✓ | ✓ |
-| Time Clock | — | ✓ | ✓ |
-| POS Terminal | — | ✓ | ✓ |
-| Appointment Booking | — | ✓ | ✓ |
-| Customer Export | — | ✓ | ✓ |
-| Plugin marketplace | ✓ | ✓ | ✓ |
-| Capability routing | ✓ | ✓ | ✓ |
-| Fallback chains | — | — | ✓ |
-| Third-party SDK | — | — | ✓ |
-| Plugin logs | ✓ | ✓ | ✓ |
+| Feature | <TierBadge tier="starter" /> | <TierBadge tier="pro" /> | <TierBadge tier="business" /> | <TierBadge tier="enterprise" /> |
+|---------|:-------:|:---:|:--------:|:----------:|
+| Label printer plugin | ✓ | ✓ | ✓ | ✓ |
+| Status check widget | ✓ | ✓ | ✓ | ✓ |
+| PCRT migration | ✓ | ✓ | ✓ | ✓ |
+| Plugin marketplace | Free only | ✓ | ✓ | ✓ |
+| Google Reviews | — | ✓ | ✓ | ✓ |
+| Time Clock | — | ✓ | ✓ | ✓ |
+| POS Terminal | — | ✓ | ✓ | ✓ |
+| Appointment Booking | — | ✓ | ✓ | ✓ |
+| Customer Export | — | — | ✓ | ✓ |
+| Capability routing | ✓ | ✓ | ✓ | ✓ |
+| Submit plugins to marketplace | — | — | ✓ | ✓ |
+| Capability fallback chains | — | — | — | ✓ |
+| Plugin logs | ✓ | ✓ | ✓ | ✓ |
 
 ## Best Practices
 

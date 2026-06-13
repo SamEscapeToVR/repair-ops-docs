@@ -57,11 +57,19 @@ The following matrix shows which roles can move a ticket **into** each target st
 | READY_FOR_PICKUP | ✓ | ✓ | ✓ | | | | |
 | PICKED_UP | ✓ | ✓ | ✓ | | | | |
 | CLOSED | ✓ | ✓ | ✓ | | | | |
+| UNCLAIMED | ✓ | | | | | | |
 | VOIDED | ✓ | ✓ | | | | | |
+
+This transition matrix is the **contract-backed** part of role permissions — it is generated from
+the locked workflow contract. Moving a ticket to **UNCLAIMED** (owner cleanup for uncollected
+devices) is **OWNER-only**. **ACCOUNTING** and **DISPATCHER** can view the board but cannot trigger
+any transition.
 
 ## Feature Access Matrix
 
-Beyond ticket transitions, each role has different levels of access to platform features.
+Beyond ticket transitions, each role has different levels of access to platform features. The
+tables below summarize how roles map to day-to-day responsibilities; the ticket-transition matrix
+above is the authoritative, code-enforced contract.
 
 ### Ticket Operations
 

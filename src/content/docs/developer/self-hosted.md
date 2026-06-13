@@ -1,579 +1,184 @@
 ---
 title: "Self-Hosted Deployment"
-description: "Docker Compose stack for private cloud deployment"
+description: "Docker Compose stack for private-cloud deployment"
 sidebar:
   order: 4
 ---
 
-Deploy RepairOps on your own infrastructure with Docker Compose. This guide covers production-grade setup with Postgres, Supabase, pg-boss, backups, and monitoring.
+Run the full RepairOps platform on your own infrastructure with Docker Compose. The stack bundles
+the web app, the background worker, a complete self-hosted Supabase (Postgres, Auth, Storage,
+Realtime, and the Kong gateway), and a Caddy reverse proxy with automatic TLS.
 
-**Available on:** Enterprise tier only.
+**Available on:** the self-hosted packages (Business and above) and Enterprise. The stack is
+delivered to you as a packaged Docker Compose project through the in-app self-host delivery flow —
+there is no public download repository.
 
 <img src="/images/screenshots/light/desktop/admin-ops.png" alt="RepairOps Admin Operations panel for self-hosted deployment management" class="screenshot light-only" loading="lazy" />
 <img src="/images/screenshots/dark/desktop/admin-ops.png" alt="RepairOps Admin Operations panel for self-hosted deployment management" class="screenshot dark-only" loading="lazy" />
 
-## Architecture Overview
+## Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│  Your Infrastructure (Docker Compose)       │
-├─────────────────────────────────────────────┤
-│                                             │
-│  ┌──────────────────────────────────────┐  │
-│  │  Nginx / Caddy (Reverse Proxy)      │  │
-│  │  - TLS termination                  │  │
-│  │  - Load balancing                   │  │
-│  └────────┬─────────────────────────────┘  │
-│           │                                 │
-│  ┌────────v──────────────────────────────┐ │
-│  │  RepairOps Web (Node.js Next.js)    │ │
-│  │  - Next.js app (port 3000)          │ │
-│  │  - Multiple replicas                │ │
-│  └────────┬──────────────────────────────┘ │
-│           │                                 │
-│  ┌────────v──────────────────────────────┐ │
-│  │  RepairOps Worker (bg jobs)         │ │
-│  │  - pg-boss (job queue)              │ │
-│  │  - Cron tasks                       │ │
-│  │  - Email delivery                   │ │
-│  └────────┬──────────────────────────────┘ │
-│           │                                 │
-│  ┌────────v──────────────────────────────┐ │
-│  │  Supabase (PostgreSQL)              │ │
-│  │  - Postgres 15 database             │ │
-│  │  - pgvector extension               │ │
-│  │  - Row-level security               │ │
-│  └────────┬──────────────────────────────┘ │
-│           │                                 │
-│  ┌────────v──────────────────────────────┐ │
-│  │  Redis (Caching & Sessions)         │ │
-│  │  - Session store                    │ │
-│  │  - Rate limiting                    │ │
-│  └─────────────────────────────────────┘ │
-│                                             │
-│  ┌─────────────────────────────────────┐  │
-│  │  MinIO (Object Storage)             │  │
-│  │  - Photos and attachments           │  │
-│  │  - Backups                          │  │
-│  └─────────────────────────────────────┘  │
-│                                             │
-└─────────────────────────────────────────────┘
-```
+The delivered `docker-compose.yml` runs a single self-contained stack:
+
+| Service | Role |
+|---------|------|
+| `db` | Supabase Postgres 15 (pgvector, logical WAL) — persistent volume |
+| `db-bootstrap` | One-shot: creates roles, passwords, grants, and schema ownership (idempotent; runs on every `up`) |
+| `auth` | Supabase Auth (GoTrue) — email, Google OAuth, passkeys |
+| `rest` | PostgREST — the Supabase data API |
+| `realtime` | Supabase Realtime — powers the live Kanban board |
+| `storage` | Supabase Storage — photos, attachments, and signed URLs |
+| `migrate` | One-shot: applies all database migrations, then exits |
+| `kong` | API gateway in front of the Supabase services |
+| `web` | The Next.js app (standalone `server.js`), published on `127.0.0.1:3100` |
+| `worker` | The pg-boss background worker (cron + event jobs) |
+| `caddy` | Reverse proxy with automatic TLS, published on `127.0.0.1:3080` |
+| `backup` | Scheduled `pg_dump` backups with NAS / S3-compatible offsite hooks |
+| `backup-verify` | On-demand backup integrity check (tools profile) |
+
+A **closed-runtime** variant (`deploy/self-host/docker-compose.closed-runtime.yml`) runs the same
+topology from prebuilt images instead of building from source.
+
+### Startup order
+
+The stack enforces dependencies so it comes up cleanly: **`db` → `db-bootstrap` → Supabase services
+(`auth`, `rest`, `realtime`, `storage`) → `migrate` → `web` + `worker` + `kong` + `caddy`**. The
+`db-bootstrap` and `migrate` services are one-shot containers that run to completion before the app
+starts.
 
 ## Prerequisites
 
-- **Docker & Docker Compose** (v2.0+)
-- **Server:** 4 CPU cores, 8GB RAM minimum (16GB recommended for production)
-- **Storage:** 100GB disk minimum (SSD recommended)
-- **OS:** Linux (Ubuntu 20.04+ recommended), or Docker Desktop on Mac/Windows
-- **Domain:** Custom domain with DNS access
-- **SSL Certificate:** Self-signed or Let's Encrypt
+- **Docker & Docker Compose v2** (`docker compose`, not the legacy `docker-compose`)
+- **Server:** 4 CPU / 8 GB RAM minimum (more for production load); SSD storage recommended
+- **OS:** Linux (Ubuntu 22.04+ recommended)
+- **Domain + DNS** pointing at the server (Caddy provisions TLS automatically)
+- **Node/pnpm** are only needed if you build images from source — the runtime is fully containerized
+  (`node:20-alpine`, pnpm 9.15.3)
 
 ## Quick Start
 
-### 1. Clone Configuration Repository
+The delivered package includes a `.env.production.example`. From the project directory:
 
 ```bash
-git clone https://github.com/repairops/docker-compose.git
-cd docker-compose
+cp .env.production.example .env.production
+# edit .env.production — fill in the required values below
+docker compose up -d
 ```
 
-### 2. Configure Environment
-
-Create `.env` file in root directory:
+Then watch it come up:
 
 ```bash
-# Core Config
-REPAIROPS_ENV=production
-REPAIROPS_URL=https://repairs.yourshop.com
-
-# Postgres
-POSTGRES_PASSWORD=generate_strong_password_here
-POSTGRES_USER=repairops
-POSTGRES_DB=repairops
-
-# Supabase
-SUPABASE_JWT_SECRET=generate_jwt_secret_here
-SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-
-# Redis
-REDIS_PASSWORD=generate_strong_password_here
-
-# S3 / MinIO
-MINIO_ROOT_USER=admin
-MINIO_ROOT_PASSWORD=generate_strong_password_here
-MINIO_BUCKET=repairops-backups
-
-# Email (SMTP)
-SMTP_HOST=mail.yourshop.com
-SMTP_PORT=587
-SMTP_USER=noreply@yourshop.com
-SMTP_PASSWORD=your_smtp_password
-SMTP_FROM=noreply@yourshop.com
-
-# Stripe (optional)
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_PUBLISHABLE_KEY=pk_live_...
-
-# AI Provider (optional)
-OPENAI_API_KEY=sk_...
-# or
-ANTHROPIC_API_KEY=sk_...
+docker compose logs -f web worker
 ```
 
-**Generate strong passwords:**
-```bash
-openssl rand -base64 32  # For passwords
-openssl rand -hex 32     # For secrets
-```
-
-### 3. Create Docker Compose File
-
-Copy or create `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: always
-
-  redis:
-    image: redis:7-alpine
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: always
-
-  minio:
-    image: minio/minio
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    volumes:
-      - minio_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    command: server /data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-    restart: always
-
-  web:
-    image: repairops/web:latest
-    environment:
-      NODE_ENV: production
-      REPAIROPS_URL: ${REPAIROPS_URL}
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-      NEXT_PUBLIC_SUPABASE_URL: http://localhost:8000
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: always
-
-  worker:
-    image: repairops/worker:latest
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SMTP_FROM: ${SMTP_FROM}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: always
-
-volumes:
-  postgres_data:
-  redis_data:
-  minio_data:
-```
-
-### 4. Start Services
+Once healthy, the app is served by Caddy. Check health with:
 
 ```bash
-docker-compose up -d
+curl https://your-domain.example.com/api/health
 ```
 
-Monitor logs:
-```bash
-docker-compose logs -f web worker
-```
+## Environment Reference
 
-### 5. Configure Reverse Proxy (Nginx)
+Configure everything in `.env.production`. The variables that must be set for a self-hosted
+deployment:
 
-```nginx
-upstream repairops {
-  server web:3000;
-}
+| Variable | Purpose |
+|----------|---------|
+| `POSTGRES_PASSWORD` | Database superuser password |
+| `JWT_SECRET` | Supabase JWT signing secret |
+| `ANON_KEY` | Supabase anon (public) key, signed with `JWT_SECRET` |
+| `SERVICE_ROLE_KEY` | Supabase service-role key (server-side, bypasses RLS) |
+| `REALTIME_SECRET_KEY_BASE` | Secret for the Realtime service |
+| `SITE_URL` / `API_EXTERNAL_URL` | Public URL of your deployment |
+| `NEXT_PUBLIC_SUPABASE_URL` | Public Supabase gateway URL (Kong) |
+| `DATABASE_URL` | Postgres connection string for the worker (the worker **fails to start** without it) |
+| `REPAIROPS_DATA_KEY_B64` | 32-byte base64 data key for envelope encryption of stored secrets (any secret operation **throws** without it) |
 
-server {
-  listen 80;
-  server_name repairs.yourshop.com;
-  return 301 https://$server_name$request_uri;
-}
+### Optional / feature-dependent
 
-server {
-  listen 443 ssl http2;
-  server_name repairs.yourshop.com;
+| Variable | When to set |
+|----------|-------------|
+| `RATE_LIMIT_SINGLE_INSTANCE=true` | Single-container deployment with no Upstash Redis — uses the in-memory rate limiter instead of failing closed. **Never set this when running multiple web replicas.** |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Multi-instance deployments that need a shared rate-limit backend |
+| `ALLOW_PRIVATE_OLLAMA=true` | Allow the AI gateway to reach a private-network/loopback Ollama host (SSRF guard escape hatch) |
+| `ALLOW_PRIVATE_WEBHOOKS=true` | Allow outbound webhook/Slack delivery to private targets |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_*` | Only if you run billing/checkout on the self-hosted instance |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_AI_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `OLLAMA_BASE_URL` | Managed AI providers you intend to use (BYOK keys are stored per-org, not as env) |
+| `EMAIL_PROVIDER` (+ Postmark/SendGrid/SMTP creds), `TWILIO_AUTH_TOKEN`, `RINGCENTRAL_WEBHOOK_SECRET` | Email/SMS/voice features |
 
-  ssl_certificate /etc/letsencrypt/live/repairs.yourshop.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/repairs.yourshop.com/privkey.pem;
-  ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_ciphers HIGH:!aNULL:!MD5;
-  ssl_prefer_server_ciphers on;
+:::caution
+Several settings **fail closed** in production when unset: `STRIPE_WEBHOOK_SECRET`,
+`TWILIO_AUTH_TOKEN`, and `RINGCENTRAL_WEBHOOK_SECRET` make their webhooks return `500`; missing
+Upstash credentials cause critical rate-limit checks to deny (unless `RATE_LIMIT_SINGLE_INSTANCE` is
+set); `REPAIROPS_DATA_KEY_B64` throws on any secret operation; `API_CORS_ORIGINS` denies all
+cross-origin API access when empty. Leave `ALLOW_PRIVATE_OLLAMA` and `ALLOW_PRIVATE_WEBHOOKS` unset
+unless you specifically need them.
+:::
 
-  location / {
-    proxy_pass http://repairops;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_cache_bypass $http_upgrade;
-  }
-}
-```
+## TLS & Reverse Proxy
 
-### 6. Set Up SSL Certificate
+TLS is handled by the bundled **Caddy** service, which provisions and renews certificates
+automatically — you do not write your own Nginx config. Point your domain's DNS at the server and
+ensure ports 80/443 are reachable; Caddy proxies to the web container on `127.0.0.1:3100`.
 
-Using Certbot (Let's Encrypt):
+## Database & Migrations
 
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot certonly --standalone -d repairs.yourshop.com
-```
+You do not run migrations by hand. The one-shot `migrate` container applies every migration from the
+delivered `supabase/migrations/` directory on startup (after `db-bootstrap` has created roles and
+grants), then exits. The web and worker containers wait for it to complete before starting.
 
-Or use Docker container:
+pgvector (used for KB Chat embeddings) is enabled as part of the Postgres image and bootstrap — no
+manual `CREATE EXTENSION` step is required.
 
-```bash
-docker run --rm -it \
-  -v /etc/letsencrypt:/etc/letsencrypt \
-  certbot/certbot certonly --standalone -d repairs.yourshop.com
-```
+## Storage
 
-## Database Setup
-
-### Run Migrations
-
-Create initial schema:
-
-```bash
-docker-compose exec -T postgres psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < migrations/schema.sql
-```
-
-Or use Supabase migrations:
-
-```bash
-docker-compose exec web npm run migrate:prod
-```
-
-### Enable pgvector Extension
-
-```bash
-docker-compose exec -T postgres psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} \
-  -c "CREATE EXTENSION IF NOT EXISTS vector;"
-```
-
-This is required for KB Chat embeddings.
-
-### Seed Initial Data
-
-```bash
-docker-compose exec web npm run seed:prod
-```
-
-## Environment Variables Reference
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `REPAIROPS_ENV` | Environment (development, staging, production) | production |
-| `REPAIROPS_URL` | Your public URL | https://repairs.yourshop.com |
-| `DATABASE_URL` | Postgres connection string | postgresql://user:pass@host:5432/db |
-| `REDIS_URL` | Redis connection string | redis://:pass@redis:6379/0 |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL | http://localhost:8000 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key | eyJhb... |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase admin key | eyJhb... |
-| `SMTP_HOST` | Email server | mail.yourshop.com |
-| `SMTP_PORT` | Email port | 587 |
-| `SMTP_USER` | Email username | noreply@yourshop.com |
-| `SMTP_PASSWORD` | Email password | ... |
-| `SMTP_FROM` | From address | noreply@yourshop.com |
-| `STRIPE_SECRET_KEY` | Stripe API key | sk_live_... |
-| `OPENAI_API_KEY` | OpenAI API key | sk_... |
+Photos, attachments, and signed download URLs are served by the bundled **Supabase Storage** service
+backed by a persistent volume — there is no separate object-storage service to run.
 
 ## Backups
 
-### Automated Daily Backups
+The `backup` service runs a scheduled `pg_dump` (default daily at 02:00) of the application schemas
+with configurable retention. It can copy backups offsite via:
 
-Create a backup script:
+- **NAS** — set `NAS_BACKUP_ENABLED=true` and `NAS_BACKUP_PATH`
+- **S3-compatible (DigitalOcean Spaces)** — set `DO_SPACES_KEY` / `DO_SPACES_SECRET` /
+  `DO_SPACES_BUCKET` (+ region/endpoint)
 
-```bash
-#!/bin/bash
-# backup.sh
-BACKUP_DIR="/backups"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+The package includes helper scripts (`backup-to-nas.sh`, `backup-to-spaces.sh`,
+`check-backup-coverage.mjs`) and an on-demand `backup-verify` container that checks dump integrity.
+Run a restore rehearsal periodically — see the backup/restore support guide in your delivery package.
 
-# Dump database
-docker-compose exec -T postgres pg_dump \
-  -U ${POSTGRES_USER} ${POSTGRES_DB} \
-  | gzip > ${BACKUP_DIR}/postgres_${TIMESTAMP}.sql.gz
+## Health & Monitoring
 
-# Backup MinIO data
-aws s3 sync s3://repairops-backups ${BACKUP_DIR}/s3_backup_${TIMESTAMP}/ \
-  --recursive
-
-echo "Backup completed: ${TIMESTAMP}"
-```
-
-Schedule with cron:
-```bash
-0 2 * * * /path/to/backup.sh
-```
-
-### Restore from Backup
-
-```bash
-# Restore database
-gunzip < /backups/postgres_20260321_020000.sql.gz | \
-  docker-compose exec -T postgres psql -U ${POSTGRES_USER} ${POSTGRES_DB}
-
-# Restore MinIO
-aws s3 sync /backups/s3_backup_20260321_020000/ s3://repairops-backups/ \
-  --recursive
-```
-
-## Monitoring
-
-### Health Checks
-
-Built-in health endpoints:
-- `GET /health` — Application health
-- `GET /api/health` — API health
-- `GET /metrics` — Prometheus metrics (if enabled)
-
-Monitor with Uptime Kuma or similar:
-
-```bash
-curl https://repairs.yourshop.com/health
-```
-
-### Log Aggregation
-
-View logs from all services:
-
-```bash
-docker-compose logs -f
-```
-
-Send logs to external service (ELK, Datadog, etc.):
-
-```yaml
-# In docker-compose.yml
-services:
-  web:
-    logging:
-      driver: awslogs
-      options:
-        awslogs-group: /repairops/web
-        awslogs-region: us-east-1
-```
-
-### Performance Monitoring
-
-Monitor resource usage:
-
-```bash
-docker stats
-```
-
-Or use Prometheus + Grafana for visualization.
-
-## Scaling
-
-### Horizontal Scaling (Multiple Web Instances)
-
-```yaml
-services:
-  web-1:
-    image: repairops/web:latest
-    # ... config
-    ports:
-      - "3001:3000"
-
-  web-2:
-    image: repairops/web:latest
-    # ... config
-    ports:
-      - "3002:3000"
-
-  web-3:
-    image: repairops/web:latest
-    # ... config
-    ports:
-      - "3003:3000"
-```
-
-Update Nginx to load balance:
-
-```nginx
-upstream repairops {
-  server web-1:3000;
-  server web-2:3000;
-  server web-3:3000;
-}
-```
-
-### Vertical Scaling (More Resources)
-
-Increase container resources:
-
-```yaml
-services:
-  web:
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '2'
-          memory: 4G
-```
-
-## Troubleshooting
-
-**Web app won't start**
-```bash
-docker-compose logs web
-# Check for database connection errors, missing env vars
-```
-
-**Database connection refused**
-```bash
-docker-compose exec postgres pg_isready -U ${POSTGRES_USER}
-# Check postgres container is healthy
-docker-compose ps postgres
-```
-
-**Email not sending**
-```bash
-# Test SMTP connection
-docker-compose exec web telnet ${SMTP_HOST} ${SMTP_PORT}
-```
-
-**High CPU usage**
-```bash
-# Profile the application
-docker stats
-# Look for memory leaks in worker logs
-docker-compose logs worker | grep -i error
-```
+- **Health endpoint:** `GET /api/health` (used by the container healthcheck).
+- **Guardian heartbeat:** supported self-hosted plans report signed health telemetry back to
+  RepairOps via the Guardian agent (`REPAIROPS_GUARDIAN_*` settings) so support can monitor your
+  instance. This is opt-in/disabled by default for self-managed deployments.
 
 ## Updating
 
-### Update Images
-
-Pull latest images:
+Updates are delivered as new package versions or images. With the closed-runtime variant:
 
 ```bash
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
-### Database Migrations
-
-Run migrations automatically:
-
-```bash
-docker-compose run web npm run migrate:prod
-```
+The package's `upgrade.sh` and `rollback.sh` / `rollback-image.sh` scripts wrap the update and
+rollback flows, including running the one-shot `migrate` container for any new migrations.
 
 ## Security Checklist
 
-- [ ] Change all default passwords in `.env`
-- [ ] Enable firewall (only port 443 open to public)
-- [ ] Configure SSL/TLS certificates
-- [ ] Set up regular backups
-- [ ] Configure database replication (for HA)
-- [ ] Enable audit logging
-- [ ] Monitor logs for suspicious activity
-- [ ] Keep Docker and OS patched
-- [ ] Use strong SSH keys for server access
-- [ ] Configure IP whitelisting (if applicable)
-
-## Performance Tuning
-
-### PostgreSQL
-
-In `docker-compose.yml`:
-
-```yaml
-postgres:
-  environment:
-    POSTGRES_INITDB_ARGS: |
-      -c max_connections=200
-      -c shared_buffers=256MB
-      -c effective_cache_size=1GB
-      -c work_mem=4MB
-```
-
-### Redis
-
-Configure memory limit:
-
-```yaml
-redis:
-  command: redis-server --maxmemory 2gb --maxmemory-policy allkeys-lru
-```
+- [ ] Set strong values for `POSTGRES_PASSWORD`, `JWT_SECRET`, `ANON_KEY`, `SERVICE_ROLE_KEY`, and `REPAIROPS_DATA_KEY_B64`
+- [ ] Restrict the firewall to ports 80/443 (the app and Supabase services bind to localhost behind Caddy)
+- [ ] Confirm TLS is issued by Caddy and HTTP redirects to HTTPS
+- [ ] Configure and verify automated backups (and offsite copies)
+- [ ] Keep `ALLOW_PRIVATE_OLLAMA` / `ALLOW_PRIVATE_WEBHOOKS` unset unless required
+- [ ] Keep Docker and the host OS patched
+- [ ] Rotate `REPAIROPS_DATA_KEY_B64` via the key-ring variables when needed
 
 ## Support
 
-- **Documentation:** See [Developer Overview](/developer/)
-- **Enterprise Support:** Contact [support@repairops.io](mailto:support@repairops.io)
-- **GitHub Issues:** [github.com/repairops/docker-compose/issues](https://github.com/repairops/docker-compose/issues)
+- **Documentation:** [docs.repairops.app](https://docs.repairops.app)
+- **Self-hosted support** is included with the supported and Business self-hosted packages and with
+  Enterprise — contact your account or support channel for upgrade and migration assistance.

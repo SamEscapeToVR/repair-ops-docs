@@ -68,7 +68,7 @@ Test a backup without affecting live data:
 5. Use sandbox to verify data before restoring to production
 
 **Sandbox access:**
-- URL: `https://yourshop-sandbox.repairops.io`
+- URL: `https://yourshop-sandbox.repairops.app`
 - Same data as backup date
 - Separate from your live system
 - Automatically deleted after 7 days

@@ -14,14 +14,14 @@ Customize RepairOps with your shop's branding. Set a custom domain, upload your 
 
 ## Custom Domain
 
-Use your own domain (e.g., `repairs.yourshop.com`) instead of `yourshop.repairops.io`.
+Use your own domain (e.g., `repairs.yourshop.com`) instead of `yourshop.repairops.app`.
 
 ### Setting Up a Custom Domain
 
 1. Navigate to **Settings** → **Branding** → **Custom Domain**
 2. Enter your domain name (e.g., `repairs.yourshop.com`)
 3. Add DNS records (CNAME or A records) as indicated:
-   - **CNAME:** Point `repairs.yourshop.com` → `yourshop.repairops.io` (easiest)
+   - **CNAME:** Point `repairs.yourshop.com` → `yourshop.repairops.app` (easiest)
    - **A Records:** Point directly to RepairOps IP (if required by your DNS provider)
 4. Click **Verify Domain**
 5. RepairOps checks DNS propagation and activates custom domain
@@ -38,7 +38,7 @@ Your site is immediately HTTPS and secure.
 ### Email from Custom Domain
 
 Outbound emails from RepairOps appear to come from your domain:
-- **From:** noreply@yourshop.com (instead of noreply@repairops.io)
+- **From:** noreply@yourshop.com (instead of noreply@repairops.app)
 - Requires SPF/DKIM configuration (see below)
 
 ### SPF & DKIM Configuration
@@ -48,13 +48,13 @@ For emails to be trusted, configure SPF and DKIM records:
 #### SPF Record
 Add to your DNS:
 ```
-v=spf1 include:repairops.io ~all
+v=spf1 include:repairops.app ~all
 ```
 
 #### DKIM
 RepairOps provides DKIM public key. Add to your DNS:
 ```
-CNAME: default._domainkey.yourshop.com → repairops._domainkey.repairops.io
+CNAME: default._domainkey.yourshop.com → repairops._domainkey.repairops.app
 ```
 
 These prevent email spoofing and improve deliverability.

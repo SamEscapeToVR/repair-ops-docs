@@ -56,15 +56,16 @@ API keys allow external applications to access RepairOps data and workflows.
 1. Navigate to **Settings** → **API Keys**
 2. Click **Generate New Key**
 3. Name your key (e.g., "Inventory Sync")
-4. Select scope (permissions):
-   - **Read** — View data (tickets, customers, inventory)
-   - **Write** — Create/update data (create tickets, update inventory)
-   - **Admin** — Full access (user management, settings)
-5. Set expiration:
-   - 30, 90, 180 days, or never expire
-   - Recommended: 90 days (auto-rotate)
+4. Select scope (permissions) — scopes are hierarchical (`write` includes `read`; `admin` includes both):
+   - **read** — view data (tickets, customers, devices, inventory, reports)
+   - **write** — read, plus create/update tickets, customers, and devices
+   - **admin** — write, plus webhook management and plugin submission
+5. Set expiration (optional)
 6. Click **Create**
-7. **Copy the key immediately** (only shown once)
+7. **Copy the key immediately** — it starts with `ro_live_` and is shown only once
+
+The REST API requires the **Business** or **Enterprise** tier, and only an organization **OWNER**
+can create or revoke keys.
 
 <img src="/images/screenshots/light/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot light-only" loading="lazy" />
 <img src="/images/screenshots/dark/desktop/settings-notifications.png" alt="RepairOps Notification settings for security alerts" class="screenshot dark-only" loading="lazy" />
@@ -74,8 +75,8 @@ API keys allow external applications to access RepairOps data and workflows.
 In API requests, include your key in the Authorization header:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.repairops.io/v1/tickets
+curl -H "Authorization: Bearer ro_live_YOUR_API_KEY" \
+  https://app.repairops.app/api/v1/tickets
 ```
 
 See [API Reference](/developer/api-reference/) for full API documentation.
@@ -90,21 +91,20 @@ See [API Reference](/developer/api-reference/) for full API documentation.
 
 ### Rate Limits
 
-API calls are rate-limited per key:
+API calls are rate-limited **per key** on a sliding 60-second window:
 
-| Scope | Limit |
-|-------|-------|
-| Read | 1,000 requests/hour |
-| Write | 100 requests/hour |
-| Admin | 10 requests/hour |
+| Plan | Default limit |
+|------|---------------|
+| Business | 100 requests / minute |
+| Enterprise | 1,000 requests / minute |
 
-Requests exceeding limit return `429 Too Many Requests`. Wait 1 hour and retry.
-
-For higher limits, upgrade to Enterprise or contact support.
+Requests exceeding the limit return `429 Too Many Requests` with a `Retry-After: 60` header. Each
+request also counts against your monthly `api_calls` meter (Business 50,000 / Enterprise 500,000);
+exhausting it returns `402`.
 
 ## Role-Based Access Control (RBAC)
 
-RepairOps has 5 roles with different permissions:
+RepairOps has 7 roles with different permissions:
 
 ### Owner
 - Full access to all features and settings
@@ -137,6 +137,14 @@ RepairOps has 5 roles with different permissions:
 - Review completed repairs
 - Pass/fail decisions
 - Cannot modify active repairs
+
+### Accounting
+- View invoices, payment records, and financial reporting
+- Read-only for ticket operations — cannot create, edit, or transition tickets
+
+### Dispatcher
+- View the ticket queue and assign technicians
+- Cannot perform repairs, process payments, or transition tickets
 
 ### Assigning Roles
 
@@ -305,7 +313,7 @@ RepairOps is GDPR-compliant:
 - Lawful basis (contract, consent, legitimate interest)
 - Data residency options (EU, US, or your choice)
 
-Request DPA at [legal@repairops.io](mailto:legal@repairops.io).
+Request DPA at [legal@repairops.app](mailto:legal@repairops.app).
 
 ### CCPA Compliance
 
@@ -356,7 +364,7 @@ If storing patient health records:
 1. **Immediately log out** of RepairOps from all devices
 2. **Change your password**
 3. **Enable 2FA** if not already enabled
-4. **Contact support:** [security@repairops.io](mailto:security@repairops.io)
+4. **Contact support:** [security@repairops.app](mailto:security@repairops.app)
 5. We'll investigate and advise next steps
 
 ### If You Notice Unauthorized Access

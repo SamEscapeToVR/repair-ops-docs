@@ -11,9 +11,10 @@ Manage your RepairOps subscription, review usage against your plan limits, and h
 
 | Plan | Monthly | Annual | Intended For |
 |------|---------|--------|--------------|
-| **Starter** | $49 | $470 | Single-shop teams |
-| **Pro** | $99 | $950 | Growing multi-shop operations |
-| **Enterprise** | $199 | $1,910 | Franchises, compliance-heavy orgs, large deployments |
+| **Starter** | $99 | $948/yr ($79/mo) | Small single-location shops |
+| **Pro** | $199 | $1,908/yr ($159/mo) | One serious shop |
+| **Business** | $449 | $4,308/yr ($359/mo) | Busy teams & light multi-location |
+| **Enterprise** | From $1,500 | Custom | Franchises, scale, private cloud (sales-assisted) |
 
 ## Subscription Management
 
@@ -44,21 +45,24 @@ Canceling stops future renewals. Your organization remains active through the cu
 
 ## Enforced Plan Limits
 
-| Resource | Starter | Pro | Enterprise |
-|----------|---------|-----|------------|
-| Work orders / month | 150 | Unlimited | Unlimited |
-| Users | 3 | 15 | Unlimited |
-| Shops | 1 | 5 | Unlimited |
-| SMS / month | 100 | 500 | Unlimited |
-| Shop displays | 0 | 1 | Unlimited |
+| Resource | Starter | Pro | Business | Enterprise |
+|----------|---------|-----|----------|------------|
+| Work orders / month | 150 | 10,000 | 25,000 | 100,000 |
+| Users | 3 | 10 | 20 | 500 |
+| Locations (shops) | 1 | 1 | 2 | 100 |
+| SMS / month | 0 | 500 | 1,000 | 10,000 |
+| Shop displays | 0 | 1 | 3 | 50 |
+| API calls / month | 0 | 0 | 50,000 | 500,000 |
 
 How enforcement works:
 
 - **Work orders:** New intake is blocked when the monthly quota is exhausted.
 - **Users:** Invites and provisioning are blocked at the cap.
-- **Shops:** New shop creation is blocked at the cap.
-- **SMS:** Outbound sends stop when the quota is exhausted.
+- **Locations:** New shop creation is blocked at the cap.
+- **SMS:** Outbound sends stop when the quota is exhausted (Starter has no bundled SMS).
 - **Displays:** Additional display tokens cannot be created above the limit.
+- **API calls:** The REST API is Business and Enterprise only; calls beyond the monthly meter
+  return `402`.
 
 RepairOps does not silently bill overages for these resources. Limits are hard gates.
 
@@ -66,15 +70,16 @@ RepairOps does not silently bill overages for these resources. Limits are hard g
 
 AI is purchased separately from the base plan.
 
-| Add-On | Price | Mode | Managed Credits / Month | Coverage |
-|--------|-------|------|-------------------------|----------|
-| **Disabled** | $0 | Off | 0 | No AI features |
-| **AI Ready** | $79 | BYOK | 0 | All supported tasks using your own keys |
-| **AI Assist** | $79 | Managed | 200 | Intake parse, note cleanup, customer summary, KB search |
-| **AI Copilot** | $149 | Managed | 500 | Full managed task coverage |
-| **Enterprise AI** | Included with Enterprise | BYOK + Managed | Unlimited | Enterprise-only routing, self-hosted, fallback, audit |
+| Add-On | Price | Mode | Managed Credits / Month | Hard Cap | Coverage |
+|--------|-------|------|-------------------------|----------|----------|
+| **Disabled** | $0 | Off | 0 | 0 | No AI features |
+| **AI Ready** | $49 | BYOK | 0 | 0 | All supported tasks using your own keys |
+| **AI Assist** | $79 | Managed | 200 | 400 | Intake parse, note cleanup, customer summary, KB search |
+| **AI Copilot** | $149 | Managed | 500 | 1,000 | Full managed task coverage (requires Pro+) |
+| **Enterprise AI** | Custom | BYOK + Managed | 2,000 | 5,000 | Self-hosted routing, fallback, and audit (Enterprise) |
 
-Monthly managed credits do **not** roll over.
+Monthly managed credits do **not** roll over. The hard cap is the most managed credits that can be
+consumed in a billing period.
 
 ## Credit Packs
 
@@ -92,14 +97,15 @@ Purchased credits are non-refundable and expire after 12 months of inactivity.
 
 | Task | Credits |
 |------|---------|
-| Intake parse | 1 |
-| Note cleanup | 1 |
-| Customer summary | 2 |
-| KB search / KB chat completion | 1 |
-| Diagnostics assist | 2 |
-| QC check | 2 |
-| Voice-to-text | 3 |
-| Manager insights | 3 |
+| KB search / KB chat completion | 2 |
+| Note cleanup | 3 |
+| Intake parse | 5 |
+| Customer summary | 8 |
+| Diagnostics assist | 10 |
+| QC pre-check | 12 |
+| Manager insights | 12 |
+| Voice-to-text | 15 |
+| System Builder generation | 25 |
 
 ### Budget Controls
 
@@ -138,9 +144,10 @@ If payment fails:
 
 Annual billing reduces the effective monthly price:
 
-- Starter: $470/year
-- Pro: $950/year
-- Enterprise: $1,910/year
+- Starter: $948/year ($79/mo)
+- Pro: $1,908/year ($159/mo)
+- Business: $4,308/year ($359/mo)
+- Enterprise: custom (sales-assisted)
 
 Switching intervals is handled through Stripe Billing and applies at the next applicable billing event.
 

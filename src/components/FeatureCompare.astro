@@ -4,6 +4,7 @@ interface FeatureRow {
   description?: string;
   starter: string;
   pro: string;
+  business: string;
   enterprise: string;
 }
 
@@ -32,22 +33,26 @@ function cellClass(value: string): string {
         <th class="fc-th fc-th--feature">Feature</th>
         <th class="fc-th fc-th--tier fc-th--starter">
           <span class="fc-tier-label">Starter</span>
-          <span class="fc-tier-price">$49/mo</span>
+          <span class="fc-tier-price">$99/mo</span>
         </th>
         <th class="fc-th fc-th--tier fc-th--pro">
           <span class="fc-tier-label">Pro</span>
-          <span class="fc-tier-price">$99/mo</span>
+          <span class="fc-tier-price">$199/mo</span>
+        </th>
+        <th class="fc-th fc-th--tier fc-th--business">
+          <span class="fc-tier-label">Business</span>
+          <span class="fc-tier-price">$449/mo</span>
         </th>
         <th class="fc-th fc-th--tier fc-th--enterprise">
           <span class="fc-tier-label">Enterprise</span>
-          <span class="fc-tier-price">$199/mo</span>
+          <span class="fc-tier-price">From $1,500/mo</span>
         </th>
       </tr>
     </thead>
     {sections.map((section, sectionIndex) => (
       <tbody>
         <tr class="fc-category-row">
-          <td colspan="4" class="fc-category">{section.category}</td>
+          <td colspan="5" class="fc-category">{section.category}</td>
         </tr>
         {section.rows.map((row, rowIndex) => {
           const rowId = `fc-row-${sectionIndex}-${rowIndex}`;
@@ -76,6 +81,7 @@ function cellClass(value: string): string {
               </td>
               <td class={cellClass(row.starter)}>{row.starter}</td>
               <td class={cellClass(row.pro)}>{row.pro}</td>
+              <td class={cellClass(row.business)}>{row.business}</td>
               <td class={cellClass(row.enterprise)}>{row.enterprise}</td>
             </tr>
           );
@@ -157,6 +163,10 @@ function cellClass(value: string): string {
 
   .fc-th--pro .fc-tier-label {
     color: var(--tier-pro);
+  }
+
+  .fc-th--business .fc-tier-label {
+    color: var(--tier-business);
   }
 
   .fc-th--enterprise .fc-tier-label {

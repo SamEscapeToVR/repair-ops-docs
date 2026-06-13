@@ -1,6 +1,6 @@
 ---
 title: "REST API Reference"
-description: "Full API endpoint documentation and authentication"
+description: "Full API endpoint documentation and authentication for the RepairOps REST API"
 sidebar:
   order: 2
 ---
@@ -8,778 +8,631 @@ sidebar:
 import ApiPlayground from '../../../components/ApiPlayground.astro';
 import ThemedImage from '../../../components/ThemedImage.astro';
 
-The RepairOps REST API enables Enterprise customers to integrate with external systems. Manage tickets, customers, inventory, and access KPI data.
+The RepairOps REST API lets you integrate external systems with your shop — read and create
+tickets, customers, and devices, look up inventory, pull KPI and usage data, manage outbound
+webhooks, and submit marketplace plugins.
 
-**Available on:** Enterprise tier only.
+**Available on:** <strong>Business</strong> and <strong>Enterprise</strong> tiers. The API key
+middleware checks `subscription_tier` on every request and returns `403 FORBIDDEN` for Starter and
+Pro organizations.
 
 ## Authentication
 
-All API requests require Bearer token authentication:
+Every request authenticates with a bearer **API key**:
 
 ```bash
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer ro_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-Generate and manage API keys in **Settings** → **API Keys**. Keys are scoped to permissions (Read, Write, Admin).
+- Keys are 32 random bytes, hex-encoded, prefixed `ro_live_`. Only a SHA-256 hash of the key is
+  stored — the full key is shown **once** at creation and cannot be retrieved later.
+- Create and revoke keys in **Settings → API Keys**. Only an organization **OWNER** can mint or
+  revoke keys (this is enforced in the server action, not just the UI).
+- A missing/malformed header returns `401 UNAUTHORIZED`; a revoked or expired key also returns
+  `401`.
 
 <ThemedImage light="/images/screenshots/light/desktop/settings-api-keys.png" dark="/images/screenshots/dark/desktop/settings-api-keys.png" alt="RepairOps API Key management with scoped permissions" />
+
+### Scopes
+
+Each key carries one or more scopes. Scopes are **hierarchical**, not per-resource:
+
+| Scope | Grants |
+|-------|--------|
+| `read` | Read-only access (all `GET` endpoints) |
+| `write` | Everything `read` can do, plus create/update (`POST`/`PATCH`) |
+| `admin` | Everything `write` can do, plus webhook management and plugin submission |
+
+A `write` key satisfies any `read` requirement; an `admin` key satisfies everything. There are no
+resource-scoped permissions such as `tickets:read` — scope is global across the API.
 
 ## Base URL
 
 ```
-https://api.repairops.io/v1
+https://app.repairops.app/api/v1
 ```
 
-All examples use this base URL.
+All examples below use this base URL.
 
 ## Quickstart Playground
 
 These examples cover the three most common starting points.
 
 <ApiPlayground
-  endpoint="/tickets?status=IN_REPAIR&limit=25"
+  endpoint="/tickets?status=IN_REPAIR&per_page=25"
   method="GET"
-  curl={`curl -X GET "https://api.repairops.io/v1/tickets?status=IN_REPAIR&limit=25" \\
-  -H "Authorization: Bearer YOUR_API_KEY"`}
+  curl={`curl -X GET "https://app.repairops.app/api/v1/tickets?status=IN_REPAIR&per_page=25" \\
+  -H "Authorization: Bearer ro_live_YOUR_API_KEY"`}
   javascript={`const response = await fetch(
-  "https://api.repairops.io/v1/tickets?status=IN_REPAIR&limit=25",
+  "https://app.repairops.app/api/v1/tickets?status=IN_REPAIR&per_page=25",
   {
     headers: {
-      Authorization: "Bearer YOUR_API_KEY",
+      Authorization: "Bearer ro_live_YOUR_API_KEY",
     },
   }
 );
 
-const data = await response.json();
-console.log(data);`}
+const { ok, data, meta } = await response.json();
+console.log(data, meta);`}
   python={`import requests
 
 response = requests.get(
-    "https://api.repairops.io/v1/tickets",
-    params={"status": "IN_REPAIR", "limit": 25},
-    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    "https://app.repairops.app/api/v1/tickets",
+    params={"status": "IN_REPAIR", "per_page": 25},
+    headers={"Authorization": "Bearer ro_live_YOUR_API_KEY"},
 )
 
 print(response.json())`}
   response={`{
+  "ok": true,
   "data": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440000",
-      "number": "T001234",
-      "status": "IN_REPAIR"
+      "ticket_code": "T-001234",
+      "status": "IN_REPAIR",
+      "priority": "standard",
+      "issue_category": "screen_repair",
+      "issue_description": "Cracked screen",
+      "org_id": "org-uuid",
+      "shop_id": "shop-uuid",
+      "customer_id": "customer-uuid",
+      "device_id": "device-uuid",
+      "assigned_tech_id": "tech-uuid",
+      "created_at": "2026-06-01T10:30:00Z",
+      "updated_at": "2026-06-02T14:15:00Z"
     }
   ],
-  "pagination": {
-    "offset": 0,
-    "limit": 25,
-    "total": 1
-  }
+  "meta": { "page": 1, "perPage": 25, "total": 1 }
 }`}
 />
 
 <ApiPlayground
-  endpoint="/tickets/:ticket_id"
+  endpoint="/tickets/:id"
   method="GET"
-  curl={`curl -X GET "https://api.repairops.io/v1/tickets/TICKET_ID" \\
-  -H "Authorization: Bearer YOUR_API_KEY"`}
+  curl={`curl -X GET "https://app.repairops.app/api/v1/tickets/TICKET_ID" \\
+  -H "Authorization: Bearer ro_live_YOUR_API_KEY"`}
   javascript={`const response = await fetch(
-  "https://api.repairops.io/v1/tickets/TICKET_ID",
+  "https://app.repairops.app/api/v1/tickets/TICKET_ID",
   {
     headers: {
-      Authorization: "Bearer YOUR_API_KEY",
+      Authorization: "Bearer ro_live_YOUR_API_KEY",
     },
   }
 );
 
-const ticket = await response.json();
+const { data: ticket } = await response.json();
 console.log(ticket);`}
   python={`import requests
 
 response = requests.get(
-    "https://api.repairops.io/v1/tickets/TICKET_ID",
-    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    "https://app.repairops.app/api/v1/tickets/TICKET_ID",
+    headers={"Authorization": "Bearer ro_live_YOUR_API_KEY"},
 )
 
 print(response.json())`}
   response={`{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "number": "T001234",
-  "status": "IN_REPAIR"
+  "ok": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "ticket_code": "T-001234",
+    "status": "IN_REPAIR",
+    "priority": "standard",
+    "issue_category": "screen_repair",
+    "issue_description": "Cracked screen",
+    "consent_signed": true,
+    "findings_summary": "Digitizer cracked; LCD intact",
+    "org_id": "org-uuid",
+    "shop_id": "shop-uuid",
+    "customer_id": "customer-uuid",
+    "device_id": "device-uuid",
+    "assigned_tech_id": "tech-uuid",
+    "created_at": "2026-06-01T10:30:00Z",
+    "updated_at": "2026-06-02T14:15:00Z",
+    "customers": { "id": "customer-uuid", "first_name": "John", "last_name": "Doe", "email": "john@example.com", "phone": "555-0123" },
+    "devices": { "id": "device-uuid", "device_type": "phone", "make": "Apple", "model": "iPhone 14 Pro", "serial": "F2L...", "identifier": "IMEI 35..." },
+    "shops": { "id": "shop-uuid", "name": "Downtown", "code": "DT" }
+  }
 }`}
 />
 
 <ApiPlayground
   endpoint="/tickets"
   method="POST"
-  curl={`curl -X POST "https://api.repairops.io/v1/tickets" \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+  curl={`curl -X POST "https://app.repairops.app/api/v1/tickets" \\
+  -H "Authorization: Bearer ro_live_YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "shop_id": "shop-uuid",
-    "customer": {
-      "name": "Jane Smith",
-      "email": "jane@example.com"
-    },
-    "device_identifier": "MacBook Pro 16\\"",
-    "issue_description": "Won't turn on",
-    "device_category": "laptop"
+    "customer_id": "customer-uuid",
+    "device_id": "device-uuid",
+    "issue_category": "screen_repair",
+    "issue_description": "Cracked screen, won'\\''t respond to touch",
+    "priority": "standard"
   }'`}
-  javascript={`const response = await fetch("https://api.repairops.io/v1/tickets", {
+  javascript={`const response = await fetch("https://app.repairops.app/api/v1/tickets", {
   method: "POST",
   headers: {
-    Authorization: "Bearer YOUR_API_KEY",
+    Authorization: "Bearer ro_live_YOUR_API_KEY",
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
     shop_id: "shop-uuid",
-    customer: {
-      name: "Jane Smith",
-      email: "jane@example.com",
-    },
-    device_identifier: "MacBook Pro 16\\"",
-    issue_description: "Won't turn on",
-    device_category: "laptop",
+    customer_id: "customer-uuid",
+    device_id: "device-uuid",
+    issue_category: "screen_repair",
+    issue_description: "Cracked screen, won't respond to touch",
+    priority: "standard",
   }),
 });
 
-const created = await response.json();
+const { data: created } = await response.json();
 console.log(created);`}
   python={`import requests
 
 response = requests.post(
-    "https://api.repairops.io/v1/tickets",
+    "https://app.repairops.app/api/v1/tickets",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer ro_live_YOUR_API_KEY",
         "Content-Type": "application/json",
     },
     json={
         "shop_id": "shop-uuid",
-        "customer": {
-            "name": "Jane Smith",
-            "email": "jane@example.com",
-        },
-        "device_identifier": "MacBook Pro 16\\\"",
-        "issue_description": "Won't turn on",
-        "device_category": "laptop",
+        "customer_id": "customer-uuid",
+        "device_id": "device-uuid",
+        "issue_category": "screen_repair",
+        "issue_description": "Cracked screen, won't respond to touch",
+        "priority": "standard",
     },
 )
 
 print(response.json())`}
   response={`{
-  "id": "ticket-uuid",
-  "number": "T001235",
-  "status": "INTAKE",
-  "created_at": "2026-02-21T10:00:00Z"
+  "ok": true,
+  "data": {
+    "id": "ticket-uuid",
+    "ticket_code": "T-001235",
+    "status": "INTAKE",
+    "created_at": "2026-06-12T10:00:00Z"
+  }
 }`}
 />
 
-## Rate Limiting
+## Response Format
 
-Rate limits depend on API key scope:
+Every response is a JSON envelope with a top-level `ok` boolean.
 
-| Scope | Requests/Hour |
-|-------|--------------|
-| Read | 1,000 |
-| Write | 100 |
-| Admin | 10 |
-
-Rate limit information is returned in response headers:
-```
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 999
-X-RateLimit-Reset: 1646899200
-```
-
-When exceeded, the API returns `429 Too Many Requests`.
-
-## Error Handling
-
-All error responses follow this format:
-
+**Success:**
 ```json
 {
+  "ok": true,
+  "data": { },
+  "meta": { "page": 1, "perPage": 25, "total": 123 }
+}
+```
+
+`meta` is present **only on paginated list endpoints**. Note the casing: the request param is
+snake_case `per_page`, but the response field is camelCase `perPage`.
+
+**Error:**
+```json
+{
+  "ok": false,
   "error": {
-    "code": "INVALID_REQUEST",
-    "message": "Invalid ticket ID format",
-    "details": {
-      "field": "ticket_id",
-      "value": "invalid-uuid"
-    }
+    "code": "VALIDATION_ERROR",
+    "message": "shop_id and customer_id are required",
+    "details": { }
   }
 }
 ```
 
-### Common Error Codes
+`details` is optional and only included on some errors (rate limiting, scope failures, plan-limit
+exhaustion, and transition gate failures).
 
-| Code | Status | Meaning |
-|------|--------|---------|
-| `UNAUTHORIZED` | 401 | Missing or invalid API key |
-| `FORBIDDEN` | 403 | Insufficient permissions for this operation |
-| `NOT_FOUND` | 404 | Resource does not exist |
-| `INVALID_REQUEST` | 400 | Malformed request or invalid parameters |
-| `CONFLICT` | 409 | Resource conflict (e.g., duplicate entry) |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests; retry later |
-| `SERVER_ERROR` | 500 | Internal server error; contact support |
+### Error Codes
+
+Codes are string literals returned in `error.code`. The full catalog the API emits:
+
+| Code | HTTP | Meaning |
+|------|------|---------|
+| `UNAUTHORIZED` | 401 | Missing/invalid/revoked/expired API key |
+| `FORBIDDEN` | 403 | Tier too low for the API, or key lacks the required scope |
+| `PLAN_LIMIT_REACHED` / `LIMIT_REACHED` | 402 | Period meter exhausted (e.g. `api_calls`, work orders) |
+| `RATE_LIMITED` | 429 | Per-key rate limit exceeded (see `Retry-After`) |
+| `INVALID_JSON` | 400 | Request body is not valid JSON |
+| `VALIDATION_ERROR` | 400 | Missing or invalid parameters |
+| `INVALID_MANIFEST` | 400 | Plugin manifest failed SDK validation |
+| `LIMIT_EXCEEDED` | 400 | Resource cap reached (e.g. 10 webhook endpoints/org) |
+| `NOT_FOUND` | 404 | Resource does not exist or belongs to another org |
+| `CONFLICT` | 409 | Optimistic-concurrency mismatch on a ticket transition |
+| `PERMISSION_DENIED` | 403 | Transition not allowed for the acting role |
+| `INVALID_TRANSITION` | 422 | Transition not in the state graph |
+| `GATE_NOT_MET` | 422 | A ticket exit gate (or payment gate) is unsatisfied |
+| `QUERY_ERROR` / `INSERT_ERROR` / `UPDATE_ERROR` / `DELETE_ERROR` / `TRANSITION_ERROR` | 500 | Database error |
+| `INTERNAL_ERROR` | 500 | Unhandled server error |
+
+## Rate Limiting
+
+Rate limits are enforced **per API key**, not per scope, on a **sliding 60-second window**:
+
+- Default: **100 requests / minute** (Enterprise keys: **1,000 / minute**). The exact value is the
+  key's `rate_limit_per_minute`.
+- On exhaustion the API returns `429 RATE_LIMITED` with `details: { limit, remaining: 0 }` and a
+  `Retry-After: 60` response header.
+
+There are no `X-RateLimit-*` headers — `Retry-After` is the only rate-limit header.
+
+Separately, each request consumes one unit of the org's monthly `api_calls` meter (Business
+50,000 / Enterprise 500,000). When that period meter is exhausted you get `402 PLAN_LIMIT_REACHED`
+until the billing period resets.
+
+## CORS
+
+Cross-origin browser requests are governed by a fail-closed allowlist (`API_CORS_ORIGINS`). Only
+exact-match origins receive `Access-Control-Allow-Origin`. The API never responds with `*`. Treat
+keys as server-side secrets — do not embed them in browser code.
+
+## Pagination
+
+List endpoints use **offset pagination** via `page` and `per_page`:
+
+```bash
+GET /tickets?page=2&per_page=50
+```
+
+- `page` — 1-based, default `1`.
+- `per_page` — default `25`, **max `100`**.
+- The response `meta` carries `{ page, perPage, total }`, where `total` is the exact row count.
+
+There is no cursor pagination and no `limit`/`offset`/`cursor` parameters. Most list endpoints
+silently fall back to defaults on unparseable pagination params (the exception is
+`/plugins/submissions`, which returns `400 VALIDATION_ERROR`).
+
+---
 
 ## Tickets
 
 ### List Tickets
 
-Get all repair tickets for your organization.
+`GET /tickets` — scope `read`.
 
-**Request:**
-```bash
-GET /tickets
-  ?shop_id=uuid
-  &status=IN_REPAIR
-  &created_after=2026-01-01
-  &created_before=2026-02-01
-  &limit=50
-  &offset=0
-```
+**Query parameters:** `page`, `per_page`, `status` (validated against the ticket status enum —
+invalid values return `400`), `shop_id`, `customer_id`.
 
-**Query Parameters:**
-- `shop_id` (optional) — Filter by shop
-- `status` (optional) — Filter by status (INTAKE, TRIAGE, IN_REPAIR, CLOSED, etc.)
-- `customer_id` (optional) — Filter by customer
-- `created_after` (optional) — Only tickets created after this date (ISO 8601)
-- `created_before` (optional) — Only tickets created before this date
-- `limit` (optional) — Number of results (default: 50, max: 500)
-- `offset` (optional) — Pagination offset (default: 0)
+Returns the list-serializer fields per ticket: `id`, `ticket_code`, `status`, `priority`,
+`issue_category`, `issue_description`, `org_id`, `shop_id`, `customer_id`, `device_id`,
+`assigned_tech_id`, `created_at`, `updated_at`.
 
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "number": "T001234",
-      "status": "IN_REPAIR",
-      "customer_id": "customer-uuid",
-      "customer_name": "John Doe",
-      "device_identifier": "iPhone 14 Pro",
-      "issue_description": "Cracked screen",
-      "total_cost": 259.99,
-      "labor_cost": 99.99,
-      "parts_cost": 160.00,
-      "created_at": "2026-02-15T10:30:00Z",
-      "updated_at": "2026-02-20T14:15:00Z",
-      "assigned_to": "tech-uuid",
-      "assigned_to_name": "Alice Tech"
-    }
-  ],
-  "pagination": {
-    "offset": 0,
-    "limit": 50,
-    "total": 1250
-  }
-}
-```
+### Get Ticket
 
-### Get Ticket Details
+`GET /tickets/:id` — scope `read`.
 
-Retrieve a single ticket with full details.
-
-**Request:**
-```bash
-GET /tickets/:ticket_id
-```
-
-**Response:**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "number": "T001234",
-  "status": "IN_REPAIR",
-  "customer": {
-    "id": "customer-uuid",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "555-0123"
-  },
-  "device": {
-    "identifier": "iPhone 14 Pro",
-    "category": "smartphone",
-    "description": "Blue, 256GB"
-  },
-  "issue": {
-    "description": "Cracked screen",
-    "category": "physical_damage",
-    "severity": "high"
-  },
-  "timeline": [
-    {
-      "status": "INTAKE",
-      "timestamp": "2026-02-15T10:30:00Z",
-      "actor": "John Doe (customer)"
-    },
-    {
-      "status": "DIAGNOSTICS",
-      "timestamp": "2026-02-15T11:00:00Z",
-      "actor": "Alice Tech"
-    },
-    {
-      "status": "IN_REPAIR",
-      "timestamp": "2026-02-16T09:00:00Z",
-      "actor": "Alice Tech"
-    }
-  ],
-  "diagnostics": {
-    "findings": "Screen is damaged; digitizer also broken",
-    "estimated_cost": 259.99,
-    "recommended_parts": ["iPhone 14 Pro Screen", "Digitizer Assembly"]
-  },
-  "labor": {
-    "hours": 1.5,
-    "rate": 65.00,
-    "total": 97.50
-  },
-  "parts": [
-    {
-      "name": "iPhone 14 Pro Screen",
-      "quantity": 1,
-      "unit_cost": 80.00,
-      "total": 80.00
-    },
-    {
-      "name": "Digitizer Assembly",
-      "quantity": 1,
-      "unit_cost": 80.00,
-      "total": 80.00
-    }
-  ],
-  "total_cost": 259.99,
-  "created_at": "2026-02-15T10:30:00Z",
-  "updated_at": "2026-02-20T14:15:00Z"
-}
-```
+Returns the full ticket serializer (the list fields plus `consent_signed`, `findings_summary`) and
+embedded `customers`, `devices`, and `shops` objects. This is the **same shape delivered in ticket
+webhook payloads**. Not found / cross-org → `404 NOT_FOUND`.
 
 ### Create Ticket
 
-Create a new repair ticket programmatically.
+`POST /tickets` — scope `write`.
 
-**Request:**
-```bash
-POST /tickets
-  -H "Content-Type: application/json"
-  -d '{
-    "shop_id": "shop-uuid",
-    "customer": {
-      "name": "Jane Smith",
-      "email": "jane@example.com",
-      "phone": "555-0456"
-    },
-    "device_identifier": "MacBook Pro 16\"",
-    "issue_description": "Won't turn on, possible liquid damage",
-    "device_category": "laptop"
-  }'
-```
+**Body:**
 
-**Request Body:**
-- `shop_id` (required) — Which shop this ticket belongs to
-- `customer.name` (required) — Customer name
-- `customer.email` (required) — Customer email
-- `customer.phone` (optional) — Customer phone
-- `device_identifier` (required) — Device name/model
-- `issue_description` (required) — What's wrong with the device
-- `device_category` (optional) — Device type (laptop, phone, tablet, etc.)
+| Field | Required | Notes |
+|-------|----------|-------|
+| `shop_id` | ✓ | Must belong to your org |
+| `customer_id` | ✓ | Must belong to your org |
+| `device_id` | ✓ | Must belong to your org — devices are **not** auto-created |
+| `issue_category` | — | |
+| `issue_description` | — | Maps to the `reported_symptoms` column |
+| `priority` | — | Defaults to `standard` |
 
-**Response:**
-```json
-{
-  "id": "ticket-uuid",
-  "number": "T001235",
-  "status": "INTAKE",
-  "created_at": "2026-02-21T10:00:00Z"
-}
-```
+Creation runs through the atomic intake routine (meter check + ticket insert + `ticket_created`
+event), assigns the ticket code via a DB trigger, and emits the `ticket.created` webhook. Returns
+`201` with `{ id, ticket_code, status: "INTAKE", created_at }`. Hitting the monthly work-order
+limit returns `402 LIMIT_REACHED`.
 
 ### Update Ticket
 
-Update ticket details (cost, status, assignments, etc.).
+`PATCH /tickets/:id` — scope `write`.
 
-**Request:**
-```bash
-PATCH /tickets/:ticket_id
-  -H "Content-Type: application/json"
-  -d '{
-    "status": "IN_REPAIR",
-    "assigned_to": "tech-uuid",
-    "labor_hours": 2,
-    "labor_rate": 65
-  }'
-```
-
-**Request Body:** (all optional)
-- `status` — New status (INTAKE, TRIAGE, DIAGNOSTICS, etc.)
-- `assigned_to` — Technician user ID
-- `labor_hours` — Hours spent on repair
-- `labor_rate` — Hourly labor rate
-- `parts` — List of parts used
-
-**Response:**
-```json
-{
-  "id": "ticket-uuid",
-  "status": "IN_REPAIR",
-  "updated_at": "2026-02-21T11:00:00Z"
-}
-```
+Only these fields can be updated: `issue_category`, `issue_description` (→ `reported_symptoms`),
+`priority`, `assigned_tech_id`, `findings_summary`. **Status cannot be changed via `PATCH`** — use
+the transition endpoint. A no-op (no field actually changed) returns `200` and writes nothing.
+Changes emit a `ticket.updated` webhook with a per-field `{ from, to }` change map.
 
 ### Transition Ticket Status
 
-Move a ticket to a new status (respects workflow rules and permissions).
+`POST /tickets/:id/transition` — scope `write`.
 
-**Request:**
-```bash
-POST /tickets/:ticket_id/transition
-  -H "Content-Type: application/json"
-  -d '{
-    "new_status": "QC_REVIEW",
-    "notes": "Ready for quality check"
-  }'
+Moves a ticket through the [state machine](/reference/state-machine/), running the **same
+validation as the staff app** (state graph + role permissions + exit gates + payment-completion
+gate). An API `write` key acts with **OWNER-equivalent** transition permissions.
+
+**Body:**
+- `expected_status` (required) — the status you believe the ticket is in (optimistic concurrency).
+- `new_status` (required) — the target status.
+- `notes` (optional) — a comment recorded with the change.
+
+```json
+{ "expected_status": "IN_REPAIR", "new_status": "QC_REVIEW", "notes": "Ready for QC" }
 ```
 
-**Request Body:**
-- `new_status` (required) — Target status
-- `notes` (optional) — Comment for the status change
-
-**Response:**
+**Success (`200`):**
 ```json
 {
   "ok": true,
-  "event_id": "event-uuid",
-  "from_status": "IN_REPAIR",
-  "to_status": "QC_REVIEW",
-  "timestamp": "2026-02-21T15:00:00Z"
-}
-```
-
-**Error if transition is invalid:**
-```json
-{
-  "error": {
-    "code": "INVALID_TRANSITION",
-    "message": "Cannot transition from IN_REPAIR to INTAKE",
-    "details": {
-      "from": "IN_REPAIR",
-      "to": "INTAKE"
-    }
+  "data": {
+    "ticket_id": "ticket-uuid",
+    "from": "IN_REPAIR",
+    "to": "QC_REVIEW",
+    "event_id": "event-uuid",
+    "outbox_id": "outbox-uuid"
   }
 }
 ```
+
+`to` may differ from your requested `new_status` — an `APPROVED` transition auto-advances to
+`WAITING_ON_PARTS` when the approved quote has parts that still need ordering.
+
+**Errors:** `409 CONFLICT` when `expected_status` doesn't match the current status;
+`403 PERMISSION_DENIED`; `422 INVALID_TRANSITION`; `422 GATE_NOT_MET` (including the
+payment-completion gate when closing a ticket with an unpaid invoice).
 
 ## Customers
 
 ### List Customers
 
-Get all customers in your organization.
+`GET /customers` — scope `read`. Query: `page`, `per_page`, `search` (matches first name, last
+name, email, or phone). Returns `id`, `first_name`, `last_name`, `email`, `phone`,
+`preferred_contact`, `customer_source_id`, `customer_source`, `tags`, `notes`, `created_at`.
 
-**Request:**
-```bash
-GET /customers
-  ?shop_id=uuid
-  &name=John
-  &created_after=2026-01-01
-  &limit=50
-```
+### Create Customer
 
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": "customer-uuid",
-      "name": "John Doe",
-      "email": "john@example.com",
-      "phone": "555-0123",
-      "address": "123 Main St, Anytown, NY 12345",
-      "lifetime_spend": 599.99,
-      "total_tickets": 3,
-      "last_repair_date": "2026-02-20",
-      "created_at": "2025-06-15T10:00:00Z"
-    }
-  ],
-  "pagination": {
-    "offset": 0,
-    "limit": 50,
-    "total": 2450
-  }
-}
-```
+`POST /customers` — scope `write`. Body: `first_name`, `last_name` (at least one required),
+`email`, `phone`, `preferred_contact` (default `email`), `customer_source_id` (must reference an
+active source in your org), `tags` (string array), `notes`. Returns `201`.
 
-### Get Customer Details
+### Get Customer
 
-**Request:**
-```bash
-GET /customers/:customer_id
-```
+`GET /customers/:id` — scope `read`. Adds `address` and `marketing_opt_out` to the list fields.
+**No `PATCH` or `DELETE`** — customer records cannot be edited or removed through the API.
 
-**Response:**
-```json
-{
-  "id": "customer-uuid",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "555-0123",
-  "address": "123 Main St, Anytown, NY 12345",
-  "lifetime_spend": 599.99,
-  "total_tickets": 3,
-  "repairs": [
-    {
-      "ticket_id": "ticket-uuid",
-      "date": "2026-02-20",
-      "device": "iPhone 14 Pro",
-      "status": "CLOSED",
-      "cost": 259.99
-    }
-  ],
-  "created_at": "2025-06-15T10:00:00Z"
-}
-```
+## Devices
+
+### List Devices
+
+`GET /devices` — scope `read`. Query: `page`, `per_page`, `customer_id`. Returns `id`,
+`customer_id`, `device_type`, `make`, `model`, `serial`, `identifier`, `specs`, `created_at`.
+
+### Create Device
+
+`POST /devices` — scope `write`. Body: `customer_id` (required), `device_type` (required), `make`,
+`model`, `serial`, `identifier`. The customer must belong to your org. Returns `201`. Because
+`POST /tickets` requires an existing `device_id`, create the device first.
+
+### Get Device
+
+`GET /devices/:id` — scope `read`. **No `PATCH` or `DELETE`.**
 
 ## Inventory
 
-### List Inventory Items
+The inventory API is **read-only** — there are no create, update, or delete endpoints.
 
-Get all inventory in your shop.
+### List Inventory
 
-**Request:**
-```bash
-GET /inventory
-  ?shop_id=uuid
-  &category=screens
-  &in_stock=true
-  &limit=50
-```
+`GET /inventory` — scope `read`. Query: `page`, `per_page`, `shop_id`, `low_stock=true` (items
+where `quantity_on_hand <= reorder_point`). Returns `id`, `name`, `sku`, `category`,
+`quantity_on_hand`, `reorder_point`, `unit_cost`, `unit_price`, `shop_id`, `is_active`,
+`created_at`, `updated_at`.
 
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": "inventory-uuid",
-      "sku": "SCREEN-IP14-001",
-      "name": "iPhone 14 Pro Screen",
-      "category": "screens",
-      "quantity_on_hand": 5,
-      "quantity_reserved": 2,
-      "quantity_available": 3,
-      "cost": 80.00,
-      "selling_price": 160.00,
-      "reorder_level": 2,
-      "supplier": "Tech Parts Inc",
-      "last_updated": "2026-02-20T10:00:00Z"
-    }
-  ],
-  "pagination": {
-    "offset": 0,
-    "limit": 50,
-    "total": 342
-  }
-}
-```
+:::note
+`unit_cost` and `unit_price` are decimal **dollars** (`numeric(10,2)`), not integer cents — unlike
+the rest of the platform, which stores money as cents.
+:::
 
-### Update Inventory
+### Get Inventory Item
 
-Adjust stock levels.
+`GET /inventory/:id` — scope `read`. Adds `description` to the list fields.
 
-**Request:**
-```bash
-PATCH /inventory/:inventory_id
-  -H "Content-Type: application/json"
-  -d '{
-    "quantity": 10,
-    "reason": "purchased"
-  }'
-```
+## Reports
 
-**Request Body:**
-- `quantity` (required) — New quantity on hand
-- `reason` (optional) — Why quantity changed (purchased, used, damaged, etc.)
+### KPI Summary
 
-## KPIs
-
-### Get KPI Snapshots
-
-Retrieve historical KPI data for dashboards.
-
-**Request:**
-```bash
-GET /kpis
-  ?shop_id=uuid
-  &start_date=2026-01-01
-  &end_date=2026-02-28
-  ?metrics=revenue,throughput,turnaround
-```
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "date": "2026-02-20",
-      "revenue": 3450.00,
-      "throughput": 12,
-      "avg_turnaround_days": 2.3,
-      "qc_pass_rate": 0.95,
-      "customer_satisfaction": 4.7,
-      "labor_margin": 0.35,
-      "parts_margin": 0.48
-    }
-  ],
-  "summary": {
-    "period_start": "2026-01-01",
-    "period_end": "2026-02-28",
-    "total_revenue": 67500.00,
-    "total_tickets": 245,
-    "avg_ticket_value": 275.51
-  }
-}
-```
-
-## Webhooks
-
-Subscribe to real-time events via webhooks (Enterprise only).
-
-### Webhook Events
-
-Configure webhook endpoints in **Settings** → **API** → **Webhooks**.
-
-**Supported Events:**
-- `ticket.created` — New ticket created
-- `ticket.transitioned` — Ticket status changed
-- `ticket.updated` — Ticket details modified
-- `payment.processed` — Payment received
-- `customer.created` — New customer created
-- `inventory.updated` — Stock level changed
-
-### Webhook Payload
+`GET /reports/kpis` — scope `read`. Optional `shop_id`. Returns a 30-day snapshot:
 
 ```json
 {
-  "event": "ticket.transitioned",
-  "timestamp": "2026-02-21T15:30:00Z",
+  "ok": true,
   "data": {
-    "ticket_id": "ticket-uuid",
-    "ticket_number": "T001234",
-    "from_status": "IN_REPAIR",
-    "to_status": "QC_REVIEW",
-    "shop_id": "shop-uuid"
+    "period": "last_30_days",
+    "open_tickets": 42,
+    "closed_tickets": 118,
+    "created_tickets": 130,
+    "snapshot": { }
   }
 }
 ```
 
-### Webhook Retry Policy
+`open_tickets` counts tickets not in `CLOSED`/`UNCLAIMED`/`VOIDED`. `snapshot` is the latest daily
+`kpi_snapshots` row (or `null`).
 
-Failed webhook deliveries are retried:
-- 1st attempt: Immediate
-- 2nd attempt: 5 minutes
-- 3rd attempt: 30 minutes
-- 4th attempt: 2 hours
-- 5th attempt: 24 hours
+### Usage Metrics
 
-After 5 failed attempts, webhook is disabled. Monitor webhook status in **Settings** → **API** → **Webhooks**.
+`GET /reports/usage` — scope `read`. Returns API request volume and current billing-period meters:
 
-## Pagination
-
-All list endpoints support pagination:
-
-```bash
-GET /tickets?limit=50&offset=100
-```
-
-**Response includes:**
 ```json
 {
-  "data": [ ... ],
-  "pagination": {
-    "offset": 100,
-    "limit": 50,
-    "total": 1250,
-    "next_offset": 150,
-    "has_more": true
+  "ok": true,
+  "data": {
+    "period": "last_30_days",
+    "api_requests_total": 8421,
+    "active_api_keys": 3,
+    "usage_meters": [
+      { "meter_type": "api_calls", "usage_count": 8421, "limit_value": 50000, "period_start": "2026-06-01", "period_end": "2026-07-01" }
+    ]
   }
 }
 ```
 
-Use `next_offset` to fetch the next page, or increment `offset` manually.
+## Webhooks (Management)
 
-## Filtering & Sorting
+Webhook endpoints are managed through the API with an **`admin`**-scoped key. See
+[Webhook Events](#webhook-events) below for the event catalog and payload format.
 
-Most endpoints support filtering by common fields:
+### List Endpoints
 
-```bash
-GET /tickets?status=IN_REPAIR&created_after=2026-01-01&sort=-created_at
+`GET /webhooks` — scope `admin`. Returns `{ id, url, events, isActive, createdAt }[]`.
+
+### Register Endpoint
+
+`POST /webhooks` — scope `admin`. Body:
+
+- `url` — HTTPS URL, max 2048 chars.
+- `events` — array of one or more [event types](#webhook-events).
+
+A maximum of **10 endpoints per organization** is enforced (`400 LIMIT_EXCEEDED` beyond that). The
+response includes a signing **`secret` (`whsec_...`) returned only once** — store it securely; it
+is required to verify delivery signatures.
+
+```json
+{
+  "ok": true,
+  "data": {
+    "id": "endpoint-uuid",
+    "url": "https://example.com/hooks/repairops",
+    "events": ["ticket.created", "ticket.transitioned"],
+    "secret": "whsec_...",
+    "is_active": true,
+    "created_at": "2026-06-12T10:00:00Z"
+  }
+}
 ```
 
-**Common filters:**
-- `shop_id` — Filter by shop
-- `status` — Filter by status
-- `customer_id` — Filter by customer
-- `created_after` / `created_before` — Date range filtering
-- `sort` — Sort order (`field` or `-field` for descending)
+### Delete Endpoint
 
-## SDK Example
+`DELETE /webhooks/:id` — scope `admin`. Hard-deletes the endpoint. Returns
+`{ id, deleted: true }`.
 
-Using the JavaScript SDK:
+## Plugins (Marketplace Submission)
 
-```typescript
-import { RepairOpsClient } from '@repairops/sdk'
+These endpoints support submitting a plugin to the marketplace review queue. See the
+[Plugin SDK](/developer/plugin-sdk/) for the manifest spec.
 
-const client = new RepairOpsClient({
-  apiKey: process.env.REPAIROPS_API_KEY
-})
+- `POST /plugins/submit` — scope `admin`. Body: `manifest` (object, validated by the plugin SDK —
+  invalid → `400 INVALID_MANIFEST`), `bundle_url` (URL), `notes` (optional, ≤2000 chars). Returns
+  `201` with the created submission (`status: "submitted"`).
+- `GET /plugins/submissions` — scope `read`. Lists your org's submissions (paginated). Bad
+  pagination params return `400 VALIDATION_ERROR`.
+- `GET /plugins/submissions/:id` — scope `read`. Returns a single submission with reviewer notes.
 
-// List tickets
-const tickets = await client.tickets.list({
-  shop_id: 'shop-uuid',
-  status: 'IN_REPAIR'
-})
+Submission status flows through `submitted → reviewing → approved | rejected`.
 
-// Get ticket details
-const ticket = await client.tickets.get('ticket-uuid')
+---
 
-// Create ticket
-const newTicket = await client.tickets.create({
-  shop_id: 'shop-uuid',
-  customer: {
-    name: 'Jane Doe',
-    email: 'jane@example.com'
-  },
-  device_identifier: 'iPhone 14',
-  issue_description: 'Cracked screen'
-})
+## Webhook Events
 
-// Transition status
-await client.tickets.transition('ticket-uuid', {
-  new_status: 'IN_REPAIR'
-})
+Subscribe an endpoint to one or more event types when you register it.
+
+### Event Types
+
+| Event | Delivery status |
+|-------|-----------------|
+| `ticket.created` | ✅ Delivered |
+| `ticket.updated` | ✅ Delivered |
+| `ticket.transitioned` | ✅ Delivered |
+| `ticket.voided` | ✅ Delivered (alongside `ticket.transitioned` when a ticket is voided) |
+| `customer.created` | ⏳ Reserved — accepted on subscription but not yet delivered to REST endpoints |
+| `customer.updated` | ⏳ Reserved |
+| `quote.approved` | ⏳ Reserved |
+| `quote.rejected` | ⏳ Reserved |
+| `payment.received` | ⏳ Reserved |
+| `inventory.low_stock` | ⏳ Reserved |
+
+:::caution
+You can subscribe an endpoint to any of the ten event types, but only the four `ticket.*` events
+are currently delivered to REST webhook endpoints. The other six are reserved for a future release.
+:::
+
+### Payload
+
+```json
+{
+  "id": "delivery-uuid",
+  "event": "ticket.transitioned",
+  "timestamp": "2026-06-12T15:30:00Z",
+  "data": {
+    "id": "ticket-uuid",
+    "ticket_code": "T-001234",
+    "status": "QC_REVIEW",
+    "previous_status": "IN_REPAIR",
+    "...": "full ticket serializer (same shape as GET /tickets/:id)"
+  }
+}
 ```
+
+For ticket events, `data` is the canonical ticket serializer. `ticket.transitioned`/`ticket.voided`
+add `status` (new) and `previous_status`; `ticket.updated` adds a `changes` map of
+`field → { from, to }`.
+
+### Verifying Signatures
+
+Each delivery includes these headers:
+
+- `X-RepairOps-Signature` — hex HMAC-SHA256 of the raw request body, keyed by your endpoint's
+  `whsec_...` secret.
+- `X-RepairOps-Event` — the event type.
+- `X-RepairOps-Delivery` — the delivery ID.
+
+Verify by recomputing `HMAC_SHA256(secret, rawBody)` and comparing against `X-RepairOps-Signature`.
+
+### Delivery & Retries
+
+- Deliveries are processed by a background worker (polled every ~30 seconds), with a **10-second**
+  timeout per attempt.
+- Up to **3 attempts** with backoff delays of **5s, 30s, then 2 minutes**. Any `2xx` is a success;
+  after 3 failures the delivery is marked failed.
+- Endpoints must resolve to public hosts — private/loopback targets are blocked (SSRF guard) and
+  fail permanently without retry.
+- Implement idempotency on your side using the delivery `id`, and respond `2xx` quickly.
+
+## API Keys & Lifecycle
+
+API keys are **created and revoked through the app, not the API itself** (Settings → API Keys,
+OWNER-only). Keys default to the `read` scope; choose `write` or `admin` when broader access is
+needed. Revoking a key is a soft revoke (`revoked_at`) and takes effect immediately. Rotate keys
+periodically and use separate keys per integration.
 
 ## Best Practices
 
-**Pagination:** Always use pagination. Don't fetch all records at once; iterate through pages.
-
-**Rate limiting:** Monitor rate limit headers. Implement exponential backoff for retries.
-
-**Error handling:** Handle all error codes gracefully. Log errors and alert on `500` errors.
-
-**Webhooks:** Verify webhook signatures before processing. Implement idempotency for duplicate events.
-
-**API keys:** Rotate keys every 90 days. Use separate keys for different applications. Store keys securely (environment variables, secrets manager).
-
-## Changelog
-
-### v1.0 (2026-02-01)
-- Initial REST API release
-- Tickets, Customers, Inventory endpoints
-- KPI data access
-- Webhook support
-- Rate limiting
+- **Pagination:** iterate with `page`/`per_page`; don't assume you've fetched everything in one call.
+- **Rate limiting:** honor `Retry-After` on `429`; add jittered backoff.
+- **Errors:** branch on `error.code`, not on the human-readable `message`.
+- **Webhooks:** verify the signature before processing, and dedupe on the delivery `id`.
+- **Secrets:** keep API keys and webhook secrets server-side (environment variables / a secrets
+  manager).
 
 ## Related Documentation
 
-- **[Developer Overview](/developer/)** — SDK and integration patterns
-- **[Plugin SDK](/developer/plugin-sdk/)** — Build custom plugins
-- **[Webhooks Reference](/developer/api-reference/#webhooks)** — Real-time event notifications
+- **[Developer Overview](/developer/)** — integration patterns and quickstarts
+- **[Plugin SDK](/developer/plugin-sdk/)** — build and submit marketplace plugins
+- **[Ticket State Machine](/reference/state-machine/)** — statuses, transitions, gates, and error codes
+- **[Feature Matrix](/reference/feature-matrix/)** — tier limits, including API and webhook quotas
