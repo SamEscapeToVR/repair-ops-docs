@@ -117,6 +117,7 @@ export default defineConfig({
             { label: 'REST API Reference', slug: 'developer/api-reference' },
             { label: 'Plugin SDK', slug: 'developer/plugin-sdk' },
             { label: 'Self-Hosted Deployment', slug: 'developer/self-hosted' },
+            { label: 'Customer Install Instructions', slug: 'developer/selfhost-customer-install-instructions' },
           ],
         },
         {
